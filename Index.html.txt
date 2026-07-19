@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d2b4e; --navy-dark:#071a33; --navy-light:#163b66;
+    --green:#7ac143; --green-dark:#5da32c;
+    --white:#ffffff; --gray-bg:#eef2f7; --text:#1c2b3a; --muted:#6b7a8c;
+    --danger:#d64550; --warning:#c98a00; --border:#e1e7ee; --radius:14px;
+    --shadow:0 10px 30px rgba(13,43,78,0.10);
+    --shadow-sm:0 2px 10px rgba(13,43,78,0.06);
+    --shadow-lg:0 20px 50px rgba(13,43,78,0.16), 0 2px 8px rgba(13,43,78,0.08);
+    --shadow-hover:0 16px 40px rgba(13,43,78,0.14), 0 0 0 1px rgba(122,193,67,0.12);
+    --font-head:'Manrope',"Segoe UI",sans-serif;
+    --font-body:'Inter',"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);background:
+       radial-gradient(1200px 600px at 100% -10%, rgba(122,193,67,0.08), transparent),
+       radial-gradient(1000px 500px at -10% 0%, rgba(13,43,78,0.06), transparent),
+       var(--gray-bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+  #app{min-height:100dvh;display:flex;flex-direction:column;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(122,193,67,0.45);}70%{box-shadow:0 0 0 12px rgba(122,193,67,0);}100%{box-shadow:0 0 0 0 rgba(122,193,67,0);}}
+  @keyframes shimmerMove{0%{background-position:-420px 0;}100%{background-position:420px 0;}}
+  .skeleton{
+    background:linear-gradient(90deg,#e7ecf3 0px,#f3f6fa 80px,#e7ecf3 160px);
+    background-size:600px 100%;
+    animation:shimmerMove 1.35s infinite linear;
+    border-radius:8px;
+    position:relative;
+  }
+  .sk-line{height:13px;}
+  .sk-block{height:90px;border-radius:14px;}
+  .sk-circle{border-radius:50%;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .mini-spinner{width:16px;height:16px;border:2.5px solid #e1e7ee;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0;}
+  .mini-spinner.light{border-color:rgba(255,255,255,0.4);border-top-color:#fff;vertical-align:middle;margin-right:7px;}
+  .topbar{
+    background:rgba(255,255,255,0.82);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+    border-bottom:1px solid rgba(225,231,238,0.9);
+    padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;
+    box-shadow:0 1px 0 rgba(13,43,78,0.03), 0 8px 24px -18px rgba(13,43,78,0.25);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{width:40px;height:40px;border-radius:11px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:var(--shadow-sm);}
+  .brand-mark img{width:100%;height:100%;object-fit:contain;padding:3px;}
+  .brand-text b{font-family:var(--font-head);font-size:15.5px;color:var(--navy);letter-spacing:-0.2px;}
+  .brand-text span{font-size:10px;color:var(--muted);letter-spacing:2px;display:block;font-weight:700;}
+  .userbox{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--navy);}
+  .userbox .uid-wrap{display:flex;align-items:center;gap:7px;}
+  .userbox .uid-wrap .icowrap{color:var(--green-dark);display:inline-flex;}
+  .role-pill{font-size:10px;background:linear-gradient(120deg,var(--navy),var(--navy-light));color:#fff;padding:4px 12px;border-radius:20px;letter-spacing:0.5px;font-weight:700;box-shadow:0 3px 10px rgba(13,43,78,0.25);}
+  .logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:7px 15px;border-radius:20px;cursor:pointer;font-size:13px;transition:.18s;}
+  .logout-btn:hover{border-color:var(--danger);color:var(--danger);box-shadow:0 4px 12px rgba(214,69,80,0.15);}
+  .notif-wrap{position:relative;}
+  .notif-bell{position:relative;background:none;border:1px solid var(--border);color:var(--navy);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
+  .notif-bell:hover{border-color:var(--green);color:var(--green-dark);}
+  .notif-badge{position:absolute;top:-5px;right:-5px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;min-width:16px;height:16px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 2px 6px rgba(214,69,80,0.4);}
+  .notif-panel{position:absolute;top:46px;right:0;width:320px;max-width:88vw;background:#fff;border-radius:12px;box-shadow:var(--shadow-lg);border:1px solid var(--border);z-index:60;overflow:hidden;animation:fadeIn .15s ease;}
+  .notif-panel-title{padding:12px 16px;font-family:var(--font-head);font-weight:800;font-size:13px;color:var(--navy);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .notif-panel-title small{font-weight:600;color:var(--muted);font-size:10.5px;text-transform:none;letter-spacing:0;}
+  .notif-empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .notif-list{max-height:380px;overflow-y:auto;}
+  .notif-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.12s;position:relative;}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item:hover{background:#f8fafc;}
+  .notif-item.unread{background:#f4f9ff;}
+  .notif-item.unread:before{content:"";position:absolute;left:6px;top:18px;width:6px;height:6px;border-radius:50%;background:var(--navy);}
+  .notif-item .notif-ico{flex-shrink:0;margin-top:2px;color:var(--navy);}
+  .notif-item.warning .notif-ico{color:var(--warning);}
+  .notif-item.success .notif-ico{color:var(--green-dark);}
+  .notif-item .notif-txt b{display:block;font-size:12.5px;color:var(--navy);margin-bottom:2px;}
+  .notif-item .notif-txt span{font-size:11.5px;color:var(--muted);line-height:1.4;}
+  .notif-item .notif-txt .notif-time{font-size:10px;color:#a7b3c0;margin-top:3px;display:block;}
+  .hero{background:linear-gradient(120deg,var(--navy) 45%,var(--navy-dark) 100%);color:#fff;padding:30px 32px;position:relative;overflow:hidden;}
+  .hero:before{content:"";position:absolute;inset:0;background:
+      radial-gradient(500px 220px at 15% 0%, rgba(255,255,255,0.06), transparent 70%);}
+  .hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(122,193,67,0.30),transparent 70%);}
+  .hero h1{margin:0;font-family:var(--font-head);font-size:23px;font-weight:800;letter-spacing:-0.3px;position:relative;} .hero h1 .accent{background:linear-gradient(120deg,var(--green),#c5e8a4);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p{margin:6px 0 0;font-size:13px;color:#cfd9e6;position:relative;}
+  main{flex:1;width:100%;max-width:1080px;margin:0 auto;padding:28px 20px 60px;}
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;border:1px solid rgba(225,231,238,0.8);position:relative;}
+  .login-wrap{display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;flex:1;min-height:0;position:relative;overflow:hidden;background:linear-gradient(160deg,var(--navy-dark),var(--navy) 60%,var(--navy-light));}
+  .login-particle{position:absolute;width:10px;height:14px;border-radius:2px;background:var(--green);opacity:0;animation:rise linear infinite;}
+  @keyframes rise{
+    0%{transform:translateY(40px);opacity:0;}
+    10%{opacity:0.35;}
+    90%{opacity:0.3;}
+    100%{transform:translateY(-260px);opacity:0;}
+  }
+  .login-card{position:relative;z-index:2;}
+  .login-card{width:100%;max-width:400px;text-align:center;box-shadow:var(--shadow-lg);padding:22px;}
+  .login-card .brand-mark{width:48px;height:48px;margin:0 auto 10px;border-radius:14px;box-shadow:var(--shadow);}
+  .login-card h2{margin:0 0 4px;font-family:var(--font-head);color:var(--navy);font-size:17px;font-weight:800;letter-spacing:-0.2px;}
+  .login-card p.sub{color:var(--muted);font-size:12.5px;margin:0 0 16px;}
+  .field{text-align:left;margin-bottom:12px;}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:6px;letter-spacing:0.2px;}
+  .field input,.field select{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none;font-family:inherit;transition:.18s;background:#fbfcfe;}
+  .field input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(122,193,67,0.14);background:#fff;}
+  .btn{display:inline-block;width:100%;padding:12px 16px;border:none;border-radius:10px;background:linear-gradient(120deg,var(--green),var(--green-dark));color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;box-shadow:0 6px 18px rgba(122,193,67,0.32);position:relative;overflow:hidden;letter-spacing:0.1px;}
+  .btn:before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-20deg);transition:left .5s ease;}
+  .btn:hover:before{left:130%;}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(122,193,67,0.40);} .btn:active{transform:translateY(0) scale(.98);}
+  .btn:disabled{background:#c7cfd8;box-shadow:none;cursor:not-allowed;transform:none;}
+  .btn:disabled:before{display:none;}
+  .btn-navy{background:linear-gradient(120deg,var(--navy),var(--navy-light));box-shadow:0 6px 18px rgba(13,43,78,0.28);}
+  .btn-outline{background:none;border:1.5px solid var(--border);color:var(--navy);box-shadow:none;}
+  .btn-outline:before{display:none;}
+  .btn-outline:hover{border-color:var(--navy);box-shadow:none;background:#f8fafc;}
+  .btn-danger{background:linear-gradient(120deg,var(--danger),#b8323c);box-shadow:0 6px 18px rgba(214,69,80,0.30);} .btn-sm{width:auto;padding:8px 16px;font-size:13px;}
+  .overlay{position:fixed;inset:0;background:rgba(7,26,51,0.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .15s ease;}
+  .overlay .box{background:#fff;border-radius:var(--radius);padding:34px 40px;text-align:center;box-shadow:var(--shadow-lg);}
+  .spinner{width:42px;height:42px;border:4px solid #e1e7ee;border-top-color:var(--green);border-radius:50%;margin:0 auto 16px;animation:spin .8s linear infinite;}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(7,26,51,0.6);backdrop-filter:blur(3px);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease;}
+  .modal{background:#fff;border-radius:var(--radius);padding:26px 28px;max-width:440px;width:100%;box-shadow:var(--shadow-lg);}
+  .modal h3{margin:0 0 8px;color:var(--danger);font-family:var(--font-head);font-size:16px;display:flex;align-items:center;gap:8px;}
+  .modal p{margin:0 0 14px;font-size:13.5px;line-height:1.5;}
+  .modal textarea{width:100%;min-height:90px;padding:10px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:14px;resize:vertical;}
+  .modal .modal-actions{display:flex;gap:10px;}
+  .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-120%);background:var(--green);color:#fff;padding:13px 24px;border-radius:10px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow-lg);z-index:200;transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+  .toast.show{transform:translateX(-50%) translateY(0);} .toast.info{background:var(--navy);} .toast.error{background:var(--danger);}
+  .welcome-banner{background:linear-gradient(120deg,var(--navy),var(--navy-light));color:#fff;border-radius:var(--radius);padding:20px 24px;display:flex;align-items:center;gap:14px;margin-bottom:18px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+  .welcome-banner:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(122,193,67,0.25),transparent 70%);}
+  .welcome-banner .icon{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(122,193,67,0.4);}
+  .welcome-banner b{font-family:var(--font-head);font-size:14.5px;} .welcome-banner span{font-size:12px;color:#c7d3e2;display:block;margin-top:2px;}
+  .announce-banner{background:linear-gradient(120deg,#fff8e6,#fff3d6);border:1px solid #f0d998;color:#7a5a00;border-radius:var(--radius);padding:12px 18px;margin-bottom:24px;font-size:13px;display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow-sm);}
+  .announce-banner .icowrap{flex-shrink:0;margin-top:1px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
+  .tile{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:26px 18px;text-align:center;cursor:pointer;box-shadow:var(--shadow-sm);transition:.2s cubic-bezier(.2,.8,.2,1);}
+  .tile:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:var(--shadow-hover);}
+  .tile:active{transform:translateY(-1px) scale(.99);}
+  .tile.disabled-tile{opacity:0.55;cursor:not-allowed;}
+  .tile.disabled-tile:hover{border-color:var(--border);transform:none;box-shadow:var(--shadow-sm);}
+  .tile .tico{
+    margin:0 auto 14px;width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg, rgba(122,193,67,0.16), rgba(13,43,78,0.09));
+    box-shadow:inset 0 0 0 1px rgba(13,43,78,0.06);color:var(--navy);
+  }
+  .tile b{display:block;font-family:var(--font-head);color:var(--navy);font-size:14.5px;margin-bottom:4px;letter-spacing:-0.1px;} .tile span{font-size:12px;color:var(--muted);}
+  .backbtn{background:none;border:none;color:var(--navy);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px;padding:6px 2px;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+  .backbtn:hover{color:var(--green-dark);transform:translateX(-2px);}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px;}
+  .stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);transition:.2s;}
+  .stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+  .stat-card .num{font-family:var(--font-head);font-size:24px;font-weight:800;color:var(--navy);letter-spacing:-0.4px;}
+  .stat-card .lbl{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+  .stat-card.accent-green .num{color:var(--green-dark);}
+  .stat-card.accent-warn .num{color:var(--warning);}
+  .stat-card.accent-red .num{color:var(--danger);}
+  .form-title{text-align:center;background:linear-gradient(120deg,var(--navy),var(--navy-light));color:#fff;padding:16px;border-radius:var(--radius) var(--radius) 0 0;font-family:var(--font-head);font-size:16px;font-weight:800;letter-spacing:-0.1px;}
+  .form-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;}
+  .form-cell{padding:12px 16px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);}
+  .form-cell:last-child{border-right:none;}
+  .form-cell label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px;}
+  .form-cell .val{font-size:14px;color:var(--text);font-weight:600;}
+  .declare-box{padding:16px;background:#f8fafc;border-bottom:1px solid var(--border);font-size:13px;line-height:1.6;}
+  .declare-check{display:flex;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+  .sig-wrap{padding:16px;text-align:center;}
+  .sig-wrap .siglabel{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;text-align:left;}
+  canvas.sigpad{border:2px dashed #c7cfd8;border-radius:10px;background:#fdfdfd;touch-action:none;cursor:crosshair;width:100%;max-width:520px;height:160px;}
+  .sig-actions{display:flex;gap:10px;justify-content:center;margin-top:10px;}
+  .submit-row{padding:18px;display:flex;gap:12px;justify-content:flex-end;}
+  .badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+  .badge.pending{background:#fff3d6;color:var(--warning);} .badge.approved{background:#e5f6db;color:var(--green-dark);} .badge.rejected{background:#fbe1e3;color:var(--danger);} .badge.locked{background:#eef1f5;color:var(--muted);}
+  .status-card{border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;position:relative;}
+  .status-card .big-icon{margin-bottom:10px;display:flex;justify-content:center;}
+  .status-updating-veil{position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;border-radius:var(--radius);gap:8px;font-size:12.5px;color:var(--navy);font-weight:700;}
+  .remarks-box{margin-top:16px;background:#fbe1e3;border:1px solid #f3c1c6;border-radius:9px;padding:12px 16px;text-align:left;font-size:13px;color:#8a2c34;}
+  .remarks-box b{display:block;margin-bottom:4px;color:var(--danger);}
+  .locked-box{margin-top:16px;background:#eef1f5;border:1px solid var(--border);border-radius:9px;padding:14px 16px;text-align:left;font-size:13px;color:var(--navy);display:flex;gap:10px;align-items:center;}
+  .steps{display:flex;justify-content:space-between;margin:24px 0;position:relative;}
+  .steps:before{content:"";position:absolute;top:14px;left:6%;right:6%;height:2px;background:var(--border);z-index:0;}
+  .step{flex:1;text-align:center;position:relative;z-index:1;}
+  .step .dot{width:28px;height:28px;border-radius:50%;background:#e1e7ee;color:#8a97a6;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:13px;font-weight:800;transition:.25s;}
+  .step.done .dot{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:0 3px 10px rgba(122,193,67,0.4);} .step.active .dot{background:var(--navy);color:#fff;animation:pulseRing 1.8s infinite;}
+  .step span{font-size:11px;color:var(--muted);display:block;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;}
+  th{background:#f8fafc;color:var(--navy);font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;}
+  tbody tr{transition:background .12s;} tbody tr:hover{background:#f8fafc;}
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13.5px;}
+  .empty .eico{margin-bottom:10px;display:flex;justify-content:center;color:#b7c2cf;}
+  .footer-bar{background:linear-gradient(120deg,var(--navy),var(--navy-dark));color:#dbe4ef;text-align:center;padding:16px;font-size:12px;}
+  .footer-bar b{color:var(--green);}
+  .vote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;max-height:560px;overflow-y:auto;padding:6px 4px;}
+  .vote-card{border:2px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;background:#fff;display:flex;flex-direction:column;transition:.18s cubic-bezier(.2,.8,.2,1);box-shadow:var(--shadow-sm);position:relative;}
+  .vote-card:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:var(--shadow-hover);}
+  .vote-card.selected{border-color:var(--green);box-shadow:0 0 0 3px rgba(122,193,67,0.25);}
+  .vote-card.voted{cursor:default;}
+  .vote-card.voted:hover{transform:none;}
+  .vote-card .photo-box{width:100%;aspect-ratio:3/4;background:var(--navy);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+  .vote-card .photo-box img{width:100%;height:100%;object-fit:cover;}
+  .vote-card .photo-box .initials{color:#fff;font-size:34px;font-weight:800;}
+  .vote-card .cinfo{padding:10px 10px 12px;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .vote-card .cinfo b{font-size:13.5px;color:var(--navy);display:block;line-height:1.25;}
+  .vote-card .cinfo span{font-size:11px;color:var(--muted);display:block;margin-top:3px;}
+  .vote-card .cinfo .vote-intro{font-size:10.5px;color:var(--muted);line-height:1.4;margin-top:6px;font-style:italic;padding-top:6px;border-top:1px dashed var(--border);}
+  .vote-card .checkmark{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(122,193,67,0.4);}
+  .vote-card.selected .checkmark{display:flex;}
+.vote-card.voted .photo-box{filter:grayscale(8%) brightness(0.97);}
+  /* Transparent full-photo "VOTED" watermark — item 7: shown as an
+     overlay across the candidate photo once the vote is cast. */
+  .voted-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;overflow:hidden;}
+.voted-watermark span{
+    font-family:Arial Black, Arial, sans-serif;
+    font-weight:900;font-size:15px;letter-spacing:3px;text-transform:uppercase;
+    color:rgba(35,30,110,0.9);
+    border:3px solid rgba(35,30,110,0.9);
+    outline:1.5px solid rgba(35,30,110,0.9);
+    outline-offset:3px;
+    padding:8px 16px;
+    border-radius:2px;
+    transform:rotate(-22deg);
+    text-shadow:0 1px 1px rgba(255,255,255,0.25);
+    filter:url(#stampTexture) drop-shadow(0 1px 1px rgba(0,0,0,0.15));
+  }
+  .bar-row{margin-bottom:14px;}
+  .result-list{display:flex;flex-direction:column;gap:14px;}
+.result-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-sm);}
+.result-avatar{width:50px;height:50px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;font-family:var(--font-head);}
+.result-avatar img{width:100%;height:100%;object-fit:cover;}
+.result-body{flex:1;min-width:0;}
+.result-name{font-family:var(--font-head);font-weight:800;font-size:14.5px;color:var(--navy);}
+.result-desig{font-size:11.5px;color:var(--muted);margin-top:1px;}
+.result-count-num{font-family:var(--font-head);font-weight:800;font-size:18px;flex-shrink:0;min-width:34px;text-align:right;}
+.result-bar-track{background:#eef1f5;border-radius:6px;height:8px;overflow:hidden;margin-top:8px;}
+.result-bar-fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1);}
+  .bar-row .bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+  .bar-track{background:#eef1f5;border-radius:6px;height:14px;overflow:hidden;}
+  .bar-fill{background:linear-gradient(90deg,var(--green),var(--green-dark));height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1);}
+  .settings-list{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .settings-group-title{padding:12px 20px 4px;font-size:11.5px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;background:#f8fafc;border-bottom:1px solid var(--border);}
+  .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);transition:.15s;gap:12px;}
+  .settings-row:hover{background:#fafcfe;}
+  .settings-row:last-child{border-bottom:none;}
+  .settings-row b{font-size:14px;color:var(--navy);display:block;} .settings-row span{font-size:12px;color:var(--muted);}
+  .switch{position:relative;display:inline-block;width:46px;height:24px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#c7cfd8;border-radius:24px;transition:.2s;}
+  .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+  input:checked + .slider{background:linear-gradient(120deg,var(--green),var(--green-dark));}
+  input:checked + .slider:before{transform:translateX(22px);}
+  .tv-select{padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12.5px;background:#fbfcfe;color:var(--navy);font-weight:700;min-width:150px;}
+  .announce-edit{padding:16px 20px;}
+  .announce-edit textarea{width:100%;min-height:70px;padding:10px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;}
+  .dt-input{width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;margin-bottom:10px;background:#fbfcfe;}
+  .dt-label{font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px;}
+  .schedule-hint{font-size:11.5px;color:var(--muted);margin-top:8px;}
+  .window-msg{display:flex;align-items:center;gap:8px;justify-content:center;background:#eef1f5;color:var(--navy);border-radius:9px;padding:10px 14px;font-size:12.5px;margin-top:10px;}
+  .live-countdown{font-family:var(--font-head);font-weight:800;color:var(--navy);}
+  .report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
+  .report-card{border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;box-shadow:var(--shadow-sm);}
+  .report-card .ricon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg, rgba(122,193,67,0.16), rgba(13,43,78,0.09));display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--navy);}
+  .report-card b{display:block;font-family:var(--font-head);color:var(--navy);font-size:14.5px;margin-bottom:6px;}
+  .report-card span{display:block;font-size:12px;color:var(--muted);margin-bottom:16px;min-height:32px;}
+  .pending-noms{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+  .pending-noms-title{padding:12px 18px;background:#f8fafc;border-bottom:1px solid var(--border);font-family:var(--font-head);font-weight:800;font-size:13px;color:var(--navy);display:flex;align-items:center;justify-content:space-between;}
+  .pending-noms-title a{font-size:11.5px;color:var(--green-dark);font-weight:700;cursor:pointer;text-decoration:none;}
+  .pending-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border);font-size:12.5px;}
+  .pending-row:last-child{border-bottom:none;}
+  .pending-row b{color:var(--navy);font-size:13px;}
+  .pending-row .pr-sub{color:var(--muted);flex:1;}
+  .pending-row .pr-actions{display:flex;gap:6px;flex-shrink:0;}
+  .pending-row .pr-actions button{width:auto;padding:5px 12px;font-size:11.5px;}
+  .vote-confirm-photo{width:96px;height:96px;border-radius:50%;overflow:hidden;margin:0 auto 14px;border:3px solid var(--green);box-shadow:var(--shadow);}
+  .vote-confirm-photo img{width:100%;height:100%;object-fit:cover;}
+  .vote-confirm-photo .initials{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-size:30px;font-weight:800;}
+  .intro-counter{font-size:11px;color:var(--muted);text-align:right;margin-top:4px;}
+  .otp-boxes{display:flex;gap:10px;justify-content:center;margin:6px 0 4px;}
+  .otp-box{width:52px;height:58px;text-align:center;font-size:24px;font-weight:800;color:var(--navy);border:1.5px solid var(--border);border-radius:10px;background:#fbfcfe;font-family:var(--font-head);outline:none;transition:.15s;}
+  .otp-box:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(122,193,67,0.14);background:#fff;}
+  .otp-box.error{border-color:var(--danger);box-shadow:0 0 0 4px rgba(214,69,80,0.12);}
+  .otp-meta{font-size:12.5px;color:var(--muted);text-align:center;margin:2px 0 18px;}
+  .otp-meta b{color:var(--navy);}
+  .otp-timer-row{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0 6px;font-size:12.5px;color:var(--muted);}
+  .otp-timer-row .otp-countdown{font-family:var(--font-head);font-weight:800;color:var(--navy);font-size:14px;letter-spacing:.3px;}
+  .otp-resend-btn{background:none;border:none;color:var(--green-dark);font-weight:700;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:4px 6px;}
+  .otp-resend-btn:disabled{color:#b7c2cf;cursor:not-allowed;}
+  .otp-changeemail{display:block;margin:14px auto 0;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;}
+  .otp-changeemail:hover{color:var(--navy);}
+  .tile-countdown{display:block;margin-top:6px;font-family:var(--font-head);font-weight:800;color:var(--navy);font-size:13px;letter-spacing:.3px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<svg width="0" height="0" style="position:absolute;">
+  <filter id="stampTexture">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="4"/>
+  </filter>
+</svg>
+
+<script>
+/* ============================================================
+   CLIENT — talks to Code.gs via google.script.run.
+   Auto-login: token kept in localStorage.
+
+   ============================================================
+   FIX PASS (THIS VERSION) — per latest user report:
+
+   H1) My Status / Vote Cast dashboard tiles now use dedicated
+       professional icons (clipboard-check / ballot-box) instead
+       of the generic pin/ballot glyphs.
+
+   H2) Vote screen rebuilt: candidate the employee actually voted
+       for now shows a premium red "VOTED" rubber-stamp badge over
+       the photo instead of a plain checkmark; each candidate card
+       also shows their optional 1-2 line introduction under the
+       name/designation/project.
+
+   H3) Voting flow is now confirm-first: tapping a candidate opens
+       a dedicated "Are you sure?" popup with their photo/name
+       before anything is sent to the server — nothing is cast on
+       a single accidental tap. Foolproof guards: clicks are
+       ignored while already voted / while a request is in flight,
+       and the server independently re-checks "already voted" no
+       matter what the client sends (see Code.gs castVote()).
+
+   H4) Registration form gained an optional "Short Introduction"
+       field (max 220 chars) that flows through to the vote card.
+
+   H5) loadAdminNominations() now surfaces a clear toast if the
+       server reports "not authorized" instead of silently showing
+       an empty table, to make any future permission issue obvious
+       instead of looking like "no data".
+
+   H6) Email Verification with 4-Digit OTP. The old
+       "email_gate" (type email -> save) is now a two-step flow:
+       enter email -> receive a 4-digit code -> verify code. All
+       icons used are the existing professional inline-SVG icon
+       set (ICONS/ic()) — no emoji anywhere in this screen.
+
+   H7 — NEW (this pass):
+   I1) Vote screen: the candidate the employee voted for now also
+       shows a subtle, transparent "VOTED" watermark across their
+       photo (in addition to the existing rubber-stamp badge).
+   I2) Reports screen gained a third card — "Winner Announcement
+       Report" — calling the new generateWinnerReport() backend.
+   I3) Manage Nominations table gained a per-row "Report" button
+       that generates a single-candidate PDF (Employee Details,
+       Signature, Reviewer Details incl. Approver 1 / Approver 2
+       decisions + date/time, Final Decision) via the new
+       generateIndividualNominationReport() backend.
+   I4) Employee Dashboard: when Registration or Voting is closed
+       purely because of a future scheduled opening time (not a
+       manual Admin off-switch), the tile now shows a clock icon,
+       the scheduled opening date/time, and a live countdown that
+       ticks down in real time. Once the countdown reaches zero the
+       screen automatically re-syncs with the server and the tile
+       unlocks — no manual refresh needed.
+
+   ------------------------------------------------------------
+   Everything below carries over all previous fix passes (G1-G4,
+   FIX A-C): no-cache click-driven loads, bfcache reload, remembered
+   last view, always-fresh myNomination, normalized admin widget.
+   ============================================================ */
+
+const SESSION_KEY = 'efs_election_session_token';
+const SESSION_EXPIRY_KEY = 'efs_election_session_expiry';
+const NOTIF_SEEN_KEY_PREFIX = 'efs_notif_last_seen_';
+const NOTIF_READ_KEY_PREFIX = 'efs_notif_read_ids_';
+const LAST_VIEW_KEY = 'efs_last_view'; // G4 — remembers screen NAME only, never any data
+const LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/8/88/EFS_Logo.png';
+const SYNC_INTERVAL_MS = 12000; // background silent auto-sync every ~10-15s (does not replace the always-fresh click loads)
+const DASHBOARD_LOAD_TIMEOUT_MS = 8000; // safety-net so the loading skeleton can never hang forever
+const SETTING_SAVE_TIMEOUT_MS = 10000; // safety-net so a settings toggle spinner can never hang forever
+const SESSION_MAX_HOURS = 8; // auto session timeout
+const SESSION_CHECK_INTERVAL_MS = 60000;
+const MAX_INTRO_CHARS = 220; // keep in sync with Code.gs MAX_INTRO_CHARS
+const OTP_LENGTH = 4; // keep in sync with Code.gs generateOtp_()
+const OTP_VALID_MINUTES = 10; // keep in sync with Code.gs OTP_VALID_MINUTES
+
+/* ---------- Premium inline icon set (replaces emoji glyphs) ---------- */
+const ICONS = {
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  checkCircle: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  xCircle: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  ballot: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5l2.3 2.3L16 9"/>',
+  chart: '<path d="M4 20V11M10 20V4M16 20v-6M3 20h18"/>',
+  pin: '<path d="M12 21s7-6.7 7-11.5A7 7 0 105 9.5C5 14.3 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/>',
+  gear: '<circle cx="12" cy="12" r="3.2"/><path d="M19 12h2.5M17 17l1.77 1.77M12 19v2.5M7 17l-1.77 1.77M5 12H2.5M7 7L5.23 5.23M12 5V2.5M17 7l1.77-1.77"/>',
+  folder: '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>',
+  inbox: '<path d="M4 12h4l2 3h4l2-3h4"/><path d="M4 12V6a1 1 0 011-1h14a1 1 0 011 1v6"/><path d="M4 12v6a1 1 0 001 1h14a1 1 0 001-1v-6"/>',
+  megaphone: '<path d="M3 10v4a1 1 0 001 1h2l6 4V5l-6 4H4a1 1 0 00-1 1z"/><path d="M15 9a3 3 0 010 6"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+  smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/>',
+  arrowLeft: '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+  bell: '<path d="M6 8a6 6 0 1112 0c0 3.5 1 5 2 6H4c1-1 2-2.5 2-6z"/><path d="M10 19a2 2 0 004 0"/>',
+  alert: '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+  fileText: '<path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h5"/>',
+  /* H1 — dedicated professional icons for My Status / Vote Cast */
+  clipboardCheck: '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4h6a1 1 0 011 1v1H8V5a1 1 0 011-1z"/><path d="M9 13l2 2 4-4"/>',
+  ballotBox: '<path d="M4 10h16v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9z"/><path d="M4 10l2.5-5h11L20 10"/><path d="M9.5 14.5l2 2 3-3.5"/>',
+  /* H6 — professional OTP / email-verification icons */
+  shieldCheck: '<path d="M12 3l7 3.2v5.3c0 4.8-3.1 7.9-7 9-3.9-1.1-7-4.2-7-9V6.2L12 3z"/><path d="M9 12l2 2 4-4.2"/>',
+  refresh: '<path d="M20 11A8 8 0 006.3 6.3M4 13a8 8 0 0013.7 4.7"/><path d="M20 4v6h-6"/><path d="M4 20v-6h6"/>',
+  /* I2 — trophy/award icon for the Winner Announcement Report */
+  award: '<circle cx="12" cy="8" r="5"/><path d="M8.5 13L7 21l5-3 5 3-1.5-8"/>'
+};
+function ic(name, size, color){
+  size = size || 20;
+  const c = color ? `color:${color};` : '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;flex-shrink:0;${c}">${ICONS[name]||''}</svg>`;
+}
+
+let state = {
+  view: 'boot',
+  activeRole: null,
+  approverLevel: null,
+  user: null,
+  token: null,
+  loginError: null,
+  emailError: null,
+  lockInfo: null,
+  processing: false,
+  toast: null,
+  myNomination: null,
+  statusLoading: false,
+  statusUpdating: false,
+  registerLoading: false,
+  resultsLoading: false,
+  approverLoading: false,
+  ballot: [],
+  myVote: null,
+  voteLoading: false,
+  selectedCandidate: null,
+  voteConfirm: null,           // H3 — candidate object pending confirmation popup
+  results: [],
+  approverInbox: [],
+  settings: null,
+  adminNominations: null,
+  adminStats: null,
+  notifications: [],
+  notifHistory: null,
+  notifOpen: false,
+  notifUnreadCount: 0,
+  rejectModal: null,
+  settingsSaving: {},
+  reportBusy: {},
+  // H6 — OTP email-verification state
+  otpEmail: '',            // the email address currently being verified
+  otpMasked: '',           // masked version shown on screen ("jo***@efs.com")
+  otpExpiresAt: 0,         // ms timestamp when the current code expires
+  otpError: null,
+  otpProcessing: false,
+  otpResendReady: false,
+  otpCountdownLabel: ''
+};
+
+let clientIp = '';
+
+function detectDevice(){
+  return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+}
+
+function fetchIp(cb){
+  fetch('https://api.ipify.org?format=json')
+    .then(r=>r.json()).then(d=>{ clientIp = d.ip || ''; cb && cb(); })
+    .catch(()=>{ clientIp=''; cb && cb(); });
+}
+
+function logPage(page){
+  if(state.user) google.script.run.logPageView(state.user.userId, page, detectDevice(), clientIp, state.token);
+}
+
+function loadSettings(cb){
+  google.script.run.withSuccessHandler(function(res){
+    state.settings = res; render(); cb && cb();
+  }).withFailureHandler(function(err){
+    console.error('getPortalSettings failed:', err);
+    state.settings = state.settings || {
+      registrationEnabled:true, nominationEnabled:true, votingEnabled:true,
+      resultsVisible:true, announcementsVisible:false, announcementText:''
+    };
+    render(); cb && cb();
+  }).getPortalSettings();
+}
+
+/* ---------- boot / auto-login ---------- */
+window.addEventListener('load', function(){
+  fetchIp(function(){
+    const savedToken = localStorage.getItem(SESSION_KEY);
+    if(savedToken){
+      state.processing = true; render();
+      google.script.run.withSuccessHandler(function(res){
+        state.processing = false;
+        if(res.valid){
+          state.user = res.user; state.token = savedToken;
+          state.activeRole = localStorage.getItem(activeRoleKey_()) || (res.user.roles && res.user.roles[0]) || res.user.role;
+          ensureSessionExpiry_();
+          if(state.user.email){ enterDashboard(); }
+          else { state.view = 'email_gate'; render(); logPage('email_gate'); }
+        } else {
+          localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(SESSION_EXPIRY_KEY);
+          state.view='login'; render();
+        }
+      }).withFailureHandler(function(){ state.processing=false; state.view='login'; render(); })
+        .checkSession(savedToken, detectDevice(), clientIp);
+    } else {
+      state.view='login'; render();
+    }
+  });
+  startSessionWatcher();
+});
+
+window.addEventListener('pageshow', function(event){
+  if (event.persisted) {
+    location.reload();
+  }
+});
+
+function isAdmin(){ return !!state.user && state.activeRole === 'Admin'; }
+function activeRoleKey_(){ return 'efs_active_role_' + (state.user ? state.user.userId : ''); }
+function setActiveRole(role){
+  state.activeRole = role;
+  localStorage.setItem(activeRoleKey_(), role);
+  if(role === 'Approver1') state.approverLevel = 1;
+  else if(role === 'Approver2') state.approverLevel = 2;
+  goto('dashboard');
+}
+
+function ensureSessionExpiry_(){
+  if(!localStorage.getItem(SESSION_EXPIRY_KEY)){
+    localStorage.setItem(SESSION_EXPIRY_KEY, String(Date.now() + SESSION_MAX_HOURS*3600*1000));
+  }
+}
+let sessionWatchHandle = null;
+function startSessionWatcher(){
+  clearInterval(sessionWatchHandle);
+  sessionWatchHandle = setInterval(function(){
+    if(!state.user || !state.token) return;
+    const exp = Number(localStorage.getItem(SESSION_EXPIRY_KEY) || 0);
+    if(exp && Date.now() > exp){
+      stopAutoSync();
+      google.script.run.logoutSession(state.token);
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(SESSION_EXPIRY_KEY);
+      localStorage.removeItem(LAST_VIEW_KEY);
+      state = { view:'login', user:null, token:null, processing:false, selectedCandidate:null, voteConfirm:null, notifications:[], notifHistory:null, settingsSaving:{}, reportBusy:{} };
+      render();
+      showToast('Your session has expired after ' + SESSION_MAX_HOURS + ' hours. Please log in again.', 'info');
+    }
+  }, SESSION_CHECK_INTERVAL_MS);
+}
+
+function applyMyNomination(res){
+  state.myNomination = res;
+}
+
+let dashboardLoadTimer = null;
+function enterDashboard(){
+  state.view = 'dashboardLoading';
+  render();
+
+  let pending = 4;
+  const admin = isAdmin();
+  const viewerNeedsStats = state.activeRole === 'Viewer';
+  if(admin) pending += 2;
+  else if(viewerNeedsStats) pending += 1;
+  let finished = false;
+
+  function landOnRestoredView(){
+    const restored = localStorage.getItem(LAST_VIEW_KEY);
+    const validViews = ['status','register','vote','results','approver','adminManage','adminSettings','adminReports'];
+    if(restored && validViews.indexOf(restored) !== -1){
+      goto(restored);
+    } else {
+      state.view = 'dashboard';
+      render();
+      logPage('dashboard');
+    }
+    startAutoSync();
+  }
+
+  clearTimeout(dashboardLoadTimer);
+  dashboardLoadTimer = setTimeout(function(){
+    if(finished) return;
+    finished = true;
+    console.warn('Dashboard load timed out — showing dashboard with partial data.');
+    landOnRestoredView();
+  }, DASHBOARD_LOAD_TIMEOUT_MS);
+
+  function done(){
+    pending--;
+    if(pending <= 0 && !finished){
+      finished = true;
+      clearTimeout(dashboardLoadTimer);
+      landOnRestoredView();
+    }
+  }
+
+  google.script.run.withSuccessHandler(function(res){
+    state.settings = res; done();
+  }).withFailureHandler(function(err){
+    console.error('getPortalSettings failed:', err);
+    state.settings = state.settings || {
+      registrationEnabled:true, nominationEnabled:true, votingEnabled:true,
+      resultsVisible:true, announcementsVisible:false, announcementText:'',
+      tileVisibility:{Employee:{register:'visible',vote:'visible',status:'visible',results:'visible'},Approver:{approverInbox:'visible',results:'visible'},Viewer:{results:'visible'}}
+    };
+    done();
+  }).getPortalSettings();
+
+  google.script.run.withSuccessHandler(function(res){
+    applyMyNomination(res); done();
+  }).withFailureHandler(function(err){
+    console.error('getMyNomination failed:', err); done();
+  }).getMyNomination(state.user.userId);
+
+  google.script.run.withSuccessHandler(function(res){
+    state.notifications = res || []; done();
+  }).withFailureHandler(function(err){
+    console.error('getNotifications failed:', err); state.notifications = []; done();
+  }).getNotifications(state.user.userId);
+
+  google.script.run.withSuccessHandler(function(res){
+    state.notifHistory = res || []; recomputeUnreadCount_(); done();
+  }).withFailureHandler(function(err){
+    console.error('getNotificationHistory failed:', err); state.notifHistory = []; done();
+  }).getNotificationHistory(state.user.userId);
+
+  if(admin){
+    google.script.run.withSuccessHandler(function(res){
+      if(res && res.error){ state.adminNominations = []; showToast('Could not load nominations: ' + res.error, 'error'); }
+      else state.adminNominations = res || [];
+      done();
+    }).withFailureHandler(function(err){
+      console.error('getAllNominations failed:', err); state.adminNominations = []; done();
+    }).getAllNominations(state.user.userId);
+  }
+
+  if(admin || viewerNeedsStats){
+    google.script.run.withSuccessHandler(function(res){
+      state.adminStats = (res && res.error) ? null : res; done();
+    }).withFailureHandler(function(err){
+      console.error('getAdminOverviewStats failed:', err); state.adminStats = null; done();
+    }).getAdminOverviewStats(state.user.userId);
+  } else if(!admin){
+    done(); // no admin/viewer stats to fetch — release the pending counter
+  }
+}
+
+/* ---------- LOGIN ---------- */
+function onLoginClick(){
+  const empId = document.getElementById('empIdInput').value.trim().toUpperCase();
+  const pass = document.getElementById('passInput').value;
+  state.loginError = null;
+  if(!empId || !pass){ state.loginError='Please enter both Employee ID and Password.'; render(); return; }
+  state.processing = true; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.processing = false;
+    if(res.success){
+      state.user = res.user; state.token = res.token;
+      state.activeRole = localStorage.getItem(activeRoleKey_()) || (res.user.roles && res.user.roles[0]) || res.user.role;
+      localStorage.setItem(SESSION_KEY, res.token);
+      localStorage.setItem(SESSION_EXPIRY_KEY, String(Date.now() + SESSION_MAX_HOURS*3600*1000));
+      localStorage.removeItem(LAST_VIEW_KEY);
+      if(state.user.email){ enterDashboard(); }
+      else { state.view = 'email_gate'; render(); logPage('email_gate'); }
+      showToast('Login successful — welcome, ' + state.user.name + '!', 'success');
+    } else if(res.locked){
+      state.lockInfo = { until: res.lockedUntil }; render(); startLockTimer();
+    } else {
+      state.loginError = res.message; render();
+    }
+  }).withFailureHandler(function(err){
+    state.processing = false; state.loginError = 'Connection error. Please try again.'; render();
+  }).authenticate(empId, pass, detectDevice(), clientIp);
+}
+let lockTimerHandle=null;
+function fmtCountdown(ms){ if(ms<=0) return '00:00'; const s=Math.floor(ms/1000),m=Math.floor(s/60),r=s%60; return String(m).padStart(2,'0')+':'+String(r).padStart(2,'0'); }
+function startLockTimer(){
+  clearInterval(lockTimerHandle);
+  lockTimerHandle = setInterval(function(){
+    const rem = state.lockInfo.until - Date.now();
+    if(rem<=0){ clearInterval(lockTimerHandle); state.lockInfo=null; render(); return; }
+    const el = document.getElementById('lockCountdown'); if(el) el.textContent = fmtCountdown(rem);
+  },1000);
+}
+
+/* ============================================================
+   H6 — EMAIL VERIFICATION (4-DIGIT OTP)
+   Step 1 (email_gate): employee enters + submits their email.
+   Step 2 (otp_verify): employee enters the 4-digit code that was
+   emailed to them, with a live 10-minute countdown and a Resend
+   button that only re-enables once that countdown reaches zero.
+   ============================================================ */
+function onRequestOtp(){
+  const val = document.getElementById('emailInput').value.trim();
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  state.emailError = null;
+  if(!ok){ state.emailError = 'Please enter a valid email address.'; render(); return; }
+  state.processing = 'otp_request'; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.processing = false;
+    if(res.success){
+      state.otpEmail = val;
+      state.otpMasked = res.maskedEmail || val;
+      state.otpExpiresAt = res.expiresAt;
+      state.otpError = null;
+      state.view = 'otp_verify';
+      render();
+      logPage('otp_verify');
+      setTimeout(function(){ focusOtpBox_(0); startOtpCountdown_(); }, 60);
+    } else {
+      state.emailError = res.message; render();
+    }
+  }).withFailureHandler(function(){
+    state.processing = false; state.emailError = 'Connection error. Please try again.'; render();
+  }).requestEmailOtp(state.user.userId, val, detectDevice(), clientIp);
+}
+
+function backToEmailEntry(){
+  stopOtpCountdown_();
+  state.otpError = null;
+  state.view = 'email_gate';
+  render();
+  setTimeout(function(){ const el=document.getElementById('emailInput'); if(el) el.value = state.otpEmail || ''; }, 30);
+}
+
+function collectOtpValue_(){
+  let val = '';
+  for(let i=0;i<OTP_LENGTH;i++){
+    const el = document.getElementById('otpBox'+i);
+    val += el ? (el.value||'').trim() : '';
+  }
+  return val;
+}
+function focusOtpBox_(i){
+  const el = document.getElementById('otpBox'+i);
+  if(el) el.focus();
+}
+function markOtpBoxesError_(hasError){
+  for(let i=0;i<OTP_LENGTH;i++){
+    const el = document.getElementById('otpBox'+i);
+    if(el) el.classList.toggle('error', !!hasError);
+  }
+}
+function onOtpBoxInput(i, el){
+  el.value = el.value.replace(/[^0-9]/g,'').slice(0,1);
+  markOtpBoxesError_(false);
+  if(el.value && i < OTP_LENGTH-1){ focusOtpBox_(i+1); }
+  if(el.value && i === OTP_LENGTH-1){
+    const full = collectOtpValue_();
+    if(full.length === OTP_LENGTH) onVerifyOtp();
+  }
+}
+function onOtpBoxKeydown(i, ev){
+  if(ev.key === 'Backspace' && !ev.target.value && i > 0){ focusOtpBox_(i-1); }
+}
+function onOtpPaste(ev){
+  const text = (ev.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,OTP_LENGTH);
+  if(!text) return;
+  ev.preventDefault();
+  for(let i=0;i<OTP_LENGTH;i++){
+    const el = document.getElementById('otpBox'+i);
+    if(el) el.value = text[i] || '';
+  }
+  if(text.length === OTP_LENGTH) onVerifyOtp();
+  else focusOtpBox_(text.length);
+}
+
+function onVerifyOtp(){
+  if(state.otpProcessing) return;
+  const code = collectOtpValue_();
+  if(code.length !== OTP_LENGTH){
+    state.otpError = 'Please enter the complete ' + OTP_LENGTH + '-digit verification code.';
+    render();
+    return;
+  }
+  state.otpProcessing = true; state.otpError = null; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.otpProcessing = false;
+    if(res.success){
+      stopOtpCountdown_();
+      state.user = res.user;
+      state.otpEmail = ''; state.otpMasked = ''; state.otpExpiresAt = 0;
+      showToast('Email verified successfully.', 'success');
+      enterDashboard();
+    } else {
+      markOtpBoxesError_(true);
+      state.otpError = res.message || 'Invalid OTP. Please enter the correct verification code.';
+      render();
+      if(res.expired || res.locked){
+        // Code can no longer be used — clear the boxes and let them request a fresh one.
+        for(let i=0;i<OTP_LENGTH;i++){ const el=document.getElementById('otpBox'+i); if(el) el.value=''; }
+        state.otpExpiresAt = 0;
+        updateOtpCountdownUI_();
+      } else {
+        focusOtpBox_(0);
+      }
+    }
+  }).withFailureHandler(function(err){
+    state.otpProcessing = false;
+    console.error('verifyEmailOtp failed:', err);
+    state.otpError = 'Connection error. Please try again.';
+    markOtpBoxesError_(true);
+    render();
+  }).verifyEmailOtp(state.user.userId, code, detectDevice(), clientIp);
+}
+
+function onResendOtp(){
+  if(!state.otpResendReady || state.otpProcessing) return;
+  state.otpProcessing = true; state.otpError = null; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.otpProcessing = false;
+    if(res.success){
+      state.otpMasked = res.maskedEmail || state.otpMasked;
+      state.otpExpiresAt = res.expiresAt;
+      for(let i=0;i<OTP_LENGTH;i++){ const el=document.getElementById('otpBox'+i); if(el){ el.value=''; el.classList.remove('error'); } }
+      render();
+      startOtpCountdown_();
+      setTimeout(function(){ focusOtpBox_(0); }, 60);
+      showToast('A new verification code has been sent.', 'success');
+    } else {
+      state.otpError = res.message;
+      if(res.expiresAt){ state.otpExpiresAt = res.expiresAt; }
+      render();
+    }
+  }).withFailureHandler(function(){
+    state.otpProcessing = false;
+    state.otpError = 'Connection error. Please try again.';
+    render();
+  }).resendEmailOtp(state.user.userId, detectDevice(), clientIp);
+}
+
+let otpCountdownHandle = null;
+function startOtpCountdown_(){
+  stopOtpCountdown_();
+  state.otpResendReady = false;
+  updateOtpCountdownUI_();
+  otpCountdownHandle = setInterval(updateOtpCountdownUI_, 1000);
+}
+function stopOtpCountdown_(){
+  clearInterval(otpCountdownHandle); otpCountdownHandle = null;
+}
+function updateOtpCountdownUI_(){
+  const remaining = state.otpExpiresAt - Date.now();
+  const label = document.getElementById('otpCountdownLabel');
+  const resendBtn = document.getElementById('otpResendBtn');
+  if(remaining <= 0){
+    state.otpResendReady = true;
+    stopOtpCountdown_();
+    if(label) label.textContent = '00:00';
+    if(resendBtn) resendBtn.disabled = false;
+  } else {
+    state.otpResendReady = false;
+    if(label) label.textContent = fmtCountdown(remaining);
+    if(resendBtn) resendBtn.disabled = true;
+  }
+}
+
+function logout(){
+  stopAutoSync();
+  stopOtpCountdown_();
+  stopDashboardCountdown_();
+  clearInterval(sessionWatchHandle);
+  google.script.run.logoutSession(state.token);
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_EXPIRY_KEY);
+  localStorage.removeItem(LAST_VIEW_KEY);
+  state = { view:'login', user:null, token:null, processing:false, selectedCandidate:null, voteConfirm:null, notifications:[], notifHistory:null, settingsSaving:{}, reportBusy:{} };
+  render();
+  startSessionWatcher();
+}
+
+function openMyStatus(){
+  state.view = 'status';
+  state.notifOpen = false;
+  localStorage.setItem(LAST_VIEW_KEY, 'status');
+  state.statusLoading = true;
+  state.myNomination = null;
+  render();
+  logPage('status');
+
+  google.script.run
+    .withSuccessHandler(function(res){
+      state.myNomination = res;
+      state.statusLoading = false;
+      render();
+    })
+    .withFailureHandler(function(err){
+      state.statusLoading = false;
+      render();
+      alert('Error loading status: ' + (err && err.message ? err.message : err));
+    })
+    .myStatusDirect(state.user.userId);
+}
+
+function goto(view){
+  // Email verify hue baghair kisi bhi dashboard/other view par jaane se
+  // rokein — chahe click kahin se bhi aaya ho (defense-in-depth).
+  if(state.user && !state.user.email && view !== 'email_gate' && view !== 'otp_verify'){
+    state.view = 'email_gate';
+    render();
+    return;
+  }
+  state.view = view;
+  state.notifOpen = false;
+
+  if(['status','register','vote','results','approver','adminManage','adminSettings','adminReports'].indexOf(view) !== -1){
+    localStorage.setItem(LAST_VIEW_KEY, view);
+  } else {
+    localStorage.removeItem(LAST_VIEW_KEY);
+  }
+
+  if(view==='status'){ state.statusLoading = true; state.myNomination = null; }
+  if(view==='vote'){ state.voteLoading = true; state.ballot = []; state.myVote = null; state.selectedCandidate = null; state.voteConfirm = null; }
+  if(view==='register'){ state.registerLoading = true; state.myNomination = null; state.eligibilityAcknowledged = false; }
+  if(view==='results'){ state.resultsLoading = true; state.results = []; }
+  if(view==='approver'){ state.approverLoading = true; state.approverInbox = []; }
+  if(view==='adminManage'){ state.adminNominations = null; }
+  if(view==='dashboard' && isAdmin()){ state.adminStats = null; state.adminNominations = null; }
+
+  render(); logPage(view);
+
+  if(view==='register') loadRegisterViewData();
+  if(view==='status') loadMyNomination();
+  if(view==='vote') loadBallotAndVote();
+  if(view==='results') loadResults();
+  if(view==='adminManage') loadAdminNominations();
+  if(view==='adminSettings') loadSettings();
+  if(view==='dashboard' && (isAdmin() || state.activeRole === 'Viewer')) loadAdminStats();
+}
+
+function loadRegisterViewData(){
+  let pending = 2;
+  function done(){
+    pending--;
+    if(pending<=0){
+      state.registerLoading = false;
+      render();
+      if(!state.myNomination) setTimeout(initSigPad,60);
+    }
+  }
+  google.script.run.withSuccessHandler(function(res){
+    state.settings = res; done();
+  }).withFailureHandler(function(err){
+    console.error('getPortalSettings failed:', err);
+    state.settings = state.settings || { registrationEnabled:true, nominationEnabled:true };
+    done();
+  }).getPortalSettings();
+
+  google.script.run.withSuccessHandler(function(res){
+    applyMyNomination(res); done();
+  }).withFailureHandler(function(err){
+    console.error('getMyNomination failed:', err); done();
+  }).getMyNomination(state.user.userId);
+}
+
+/* ---------- toast ---------- */
+function showToast(msg, type){
+  state.toast = {msg, type: type||'success'};
+  render();
+  setTimeout(()=>{ const t=document.getElementById('toastEl'); if(t) t.classList.add('show'); },30);
+  setTimeout(()=>{ const t=document.getElementById('toastEl'); if(t) t.classList.remove('show'); state.toast=null; },2600);
+}
+
+/* ---------- SIGNATURE PAD ---------- */
+let sigCtx=null, sigDrawing=false, sigHasContent=false;
+function initSigPad(){
+  const canvas = document.getElementById('sigPad'); if(!canvas) return;
+  const ratio = window.devicePixelRatio||1;
+  canvas.width = canvas.clientWidth*ratio; canvas.height = canvas.clientHeight*ratio;
+  sigCtx = canvas.getContext('2d'); sigCtx.scale(ratio,ratio);
+  sigCtx.lineWidth=2.2; sigCtx.lineCap='round'; sigCtx.strokeStyle='#0d2b4e';
+  function pos(e){ const r=canvas.getBoundingClientRect(); const cx=e.touches?e.touches[0].clientX:e.clientX; const cy=e.touches?e.touches[0].clientY:e.clientY; return {x:cx-r.left,y:cy-r.top}; }
+  function start(e){ sigDrawing=true; const p=pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); e.preventDefault(); }
+  function move(e){ if(!sigDrawing) return; const p=pos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigHasContent=true; updateSubmitState(); e.preventDefault(); }
+  function end(){ sigDrawing=false; }
+  canvas.onmousedown=start; canvas.onmousemove=move; window.addEventListener('mouseup',end);
+  canvas.ontouchstart=start; canvas.ontouchmove=move; canvas.ontouchend=end;
+}
+function clearSig(){ const canvas=document.getElementById('sigPad'); if(sigCtx&&canvas) sigCtx.clearRect(0,0,canvas.width,canvas.height); sigHasContent=false; updateSubmitState(); }
+let declareChecked=false;
+function toggleDeclare(v){ declareChecked=v; updateSubmitState(); }
+function updateSubmitState(){ const btn=document.getElementById('submitNomBtn'); if(btn) btn.disabled = !(sigHasContent && declareChecked); }
+function updateIntroCounter(){
+  const el = document.getElementById('introInput');
+  const counter = document.getElementById('introCounter');
+  if(el && counter) counter.textContent = (el.value||'').length + ' / ' + MAX_INTRO_CHARS;
+}
+
+/* ---------- REGISTRATION / STATUS ---------- */
+function loadMyNomination(){
+  google.script.run
+    .withSuccessHandler(function(res){
+      applyMyNomination(res);
+      state.statusLoading = false;
+      render();
+      if(state.view==='register') setTimeout(initSigPad,60);
+    })
+    .withFailureHandler(function(err){
+      console.error('getMyNomination failed:', err);
+      state.statusLoading = false;
+      render();
+      showToast('Could not load your nomination status: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+    })
+    .getMyNomination(state.user.userId);
+}
+function submitNomination(){
+  if(!sigHasContent || !declareChecked) return;
+  const canvas = document.getElementById('sigPad');
+  const sigData = canvas.toDataURL('image/png');
+  const introVal = (document.getElementById('introInput')||{}).value || '';
+  state.processing='submit'; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.processing=false;
+    if(res.success){
+      sigHasContent=false; declareChecked=false;
+      applyMyNomination({
+        NominationID: res.nomId, Status: 'Pending Approver 1',
+        Timestamp: new Date().toString(), RejectionRemarks: ''
+      });
+      state.statusLoading = false;
+      state.view='status'; render();
+      loadMyNomination();
+      showToast('Submitted! Approver 1 has been emailed.', 'info');
+    } else {
+      if(res.alreadySubmitted) loadMyNomination();
+      showToast(res.message, 'info'); render();
+    }
+  }).withFailureHandler(function(err){
+    state.processing=false;
+    console.error('submitNomination failed:', err);
+    showToast('Submission failed: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+    render();
+  }).submitNomination({ userId: state.user.userId, signatureBase64: sigData, device: detectDevice(), ip: clientIp, introduction: introVal });
+}
+
+/* ---------- VOTE ---------- */
+function loadBallotAndVote(){
+  let pending = 2;
+  function done(){ pending--; if(pending<=0){ state.voteLoading = false; render(); } }
+  google.script.run.withSuccessHandler(function(res){ state.ballot=res; done(); })
+    .withFailureHandler(function(err){ console.error('getBallot failed:', err); state.ballot=[]; done(); })
+    .getBallot();
+  google.script.run.withSuccessHandler(function(res){ state.myVote=res; done(); })
+    .withFailureHandler(function(err){ console.error('getMyVote failed:', err); done(); })
+    .getMyVote(state.user.userId);
+}
+
+/* H3 — clicking a candidate never votes directly anymore. It opens
+   a confirmation popup with that candidate's photo/name/designation
+   and only casts the vote after an explicit "Yes". Foolproof: any
+   click is ignored once already voted or while a request is mid-
+   flight, and the server (castVote in Code.gs) independently
+   re-checks "already voted" regardless of what the client sends. */
+function onCandidateClick(nomId){
+  if(state.myVote || state.processing) return;
+  const c = (state.ballot||[]).find(x=>x.nomId===nomId);
+  if(!c) return;
+  state.voteConfirm = c;
+  render();
+}
+function closeVoteConfirm(){ state.voteConfirm = null; render(); }
+function confirmVoteYes(){
+  const c = state.voteConfirm;
+  if(!c || state.myVote || state.processing) return;
+  state.voteConfirm = null;
+  state.selectedCandidate = c.nomId;
+  confirmVote();
+}
+function confirmVote(){
+  if(!state.selectedCandidate) return;
+  const votedFor = state.selectedCandidate;
+  state.processing='vote'; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.processing=false;
+    if(res.success){ state.myVote=votedFor; state.selectedCandidate=null; render(); showToast('Your vote has been recorded. Thank you!', 'success'); }
+    else { render(); showToast(res.message,'info'); }
+  }).withFailureHandler(function(err){
+    state.processing=false; console.error('castVote failed:', err); showToast('Could not record your vote. Please try again.', 'error'); render();
+  }).castVote(state.user.userId, votedFor, detectDevice(), clientIp, null, null);
+}
+
+/* ---------- RESULTS ---------- */
+function loadResults(){
+  google.script.run.withSuccessHandler(function(res){ state.results=res; state.resultsLoading=false; render(); })
+    .withFailureHandler(function(err){ console.error('getResults failed:', err); state.resultsLoading=false; render(); })
+    .getResults();
+}
+
+/* ---------- APPROVER ---------- */
+function loadApproverInbox(level){
+  state.approverLoading = true; state.approverInbox = []; render();
+  google.script.run.withSuccessHandler(function(res){ state.approverInbox=res; state.approverLoading=false; render(); })
+    .withFailureHandler(function(err){ console.error('getApproverInbox failed:', err); state.approverLoading=false; render(); })
+    .getApproverInbox(level);
+}
+function doApproverAction(nomId, level, decision, token){
+  if(decision === 'reject'){ openRejectModal(nomId, level, token, false); return; }
+  state.processing='approve'; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.processing=false; showToast(res.message, res.success?'success':'info');
+    loadApproverInbox(level);
+  }).withFailureHandler(function(err){
+    state.processing=false; console.error('approverDecision failed:', err); showToast('Action failed. Please try again.', 'error'); render();
+  }).approverDecision(nomId, level, decision, token, '', false);
+}
+
+/* ---------- ADMIN ---------- */
+function loadAdminNominations(){
+  state.adminNominations = null; render();
+  google.script.run.withSuccessHandler(function(res){
+    if(res && res.error){ state.adminNominations = []; showToast('Could not load nominations: ' + res.error, 'error'); }
+    else state.adminNominations = res || [];
+    render();
+  }).withFailureHandler(function(err){
+    console.error('getAllNominations failed:', err); state.adminNominations = []; showToast('Could not load nominations. Please try again.', 'error'); render();
+  }).getAllNominations(state.user.userId);
+}
+function loadAdminStats(){
+  state.adminStats = null; render();
+  google.script.run.withSuccessHandler(function(res){ state.adminStats = (res && res.error) ? null : res; render(); })
+    .withFailureHandler(function(err){ console.error('getAdminOverviewStats failed:', err); render(); })
+    .getAdminOverviewStats(state.user.userId);
+}
+function adminOverride(nomId, decision){
+  if(decision === 'reject'){ openRejectModal(nomId, null, null, true); return; }
+  state.processing='approve'; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.processing=false; showToast(res.message, res.success?'success':'info');
+    loadAdminNominations(); loadAdminStats();
+  }).withFailureHandler(function(err){
+    state.processing=false; console.error('adminOverrideDecision failed:', err); showToast('Action failed. Please try again.', 'error'); render();
+  }).adminOverrideDecision(state.user.userId, nomId, decision, '');
+}
+
+/* I3 — per-candidate individual nomination report (Employee Details,
+   Signature, Reviewer Details with Approver 1 / Approver 2 decisions
+   and date/time, Final Decision) — available for any nomination
+   row regardless of its current status. */
+function generateIndividualReport(nomId){
+  const key = 'ind_' + nomId;
+  state.reportBusy[key] = true; render();
+  google.script.run.withSuccessHandler(function(res){
+    state.reportBusy[key] = false; render();
+    if(res && res.success){ showToast('Report ready — opening…', 'success'); window.open(res.url, '_blank'); }
+    else { showToast((res && res.message) || 'Could not generate report.', 'error'); }
+  }).withFailureHandler(function(err){
+    state.reportBusy[key] = false; render();
+    showToast('Report generation failed: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+  }).generateIndividualNominationReport(state.user.userId, nomId);
+}
+
+/* ---------- Mandatory-reason reject modal (Approver Inbox & Admin Manage) ---------- */
+function openRejectModal(nomId, level, token, isAdminFlag){
+  state.rejectModal = { nomId: nomId, level: level, token: token, isAdmin: isAdminFlag, reason: '' };
+  render();
+  setTimeout(function(){ const ta = document.getElementById('rejectReasonInput'); if(ta) ta.focus(); }, 50);
+}
+function closeRejectModal(){ state.rejectModal = null; render(); }
+function updateRejectReason(v){
+  if(!state.rejectModal) return;
+  state.rejectModal.reason = v;
+  const btn = document.getElementById('rejectConfirmBtn');
+  if(btn) btn.disabled = !v.trim();
+}
+function confirmReject(){
+  const rm = state.rejectModal; if(!rm) return;
+  const reason = (rm.reason || '').trim();
+  if(!reason) return;
+  state.rejectModal = null;
+  state.processing='approve'; render();
+  if(rm.isAdmin){
+    google.script.run.withSuccessHandler(function(res){
+      state.processing=false; showToast(res.message, res.success?'success':'info');
+      loadAdminNominations(); loadAdminStats();
+    }).withFailureHandler(function(err){
+      state.processing=false; console.error('adminOverrideDecision failed:', err); showToast('Action failed. Please try again.', 'error'); render();
+    }).adminOverrideDecision(state.user.userId, rm.nomId, 'reject', reason);
+  } else {
+    google.script.run.withSuccessHandler(function(res){
+      state.processing=false; showToast(res.message, res.success?'success':'info');
+      loadApproverInbox(rm.level);
+    }).withFailureHandler(function(err){
+      state.processing=false; console.error('approverDecision failed:', err); showToast('Action failed. Please try again.', 'error'); render();
+    }).approverDecision(rm.nomId, rm.level, 'reject', rm.token, reason, false);
+  }
+}
+
+/* ============================================================
+   Settings toggles — each save carries its own timeout
+   safety-net (SETTING_SAVE_TIMEOUT_MS).
+   ============================================================ */
+function withSaveTimeout_(key, onTimeout){
+  const timer = setTimeout(function(){
+    if(state.settingsSaving[key]){
+      state.settingsSaving[key] = false;
+      render();
+      showToast('This is taking longer than expected — please try again.', 'error');
+      onTimeout && onTimeout();
+    }
+  }, SETTING_SAVE_TIMEOUT_MS);
+  return timer;
+}
+
+function toggleSetting(key, checked){
+  state.settingsSaving[key] = true; render();
+  const timer = withSaveTimeout_(key);
+  google.script.run.withSuccessHandler(function(res){
+    clearTimeout(timer);
+    state.settingsSaving[key] = false;
+    try{
+      if(res && res.success){ state.settings = res.settings; render(); showToast('Setting updated successfully.', 'success'); }
+      else { render(); showToast((res && res.message) || 'Could not save this setting.', 'info'); }
+    }catch(e){ render(); showToast('Could not save this setting: unexpected response.', 'error'); }
+  }).withFailureHandler(function(err){
+    clearTimeout(timer);
+    state.settingsSaving[key] = false;
+    render();
+    showToast('Could not save this setting: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+  }).updateSetting(state.user.userId, key, checked ? 'true' : 'false');
+}
+function saveAnnouncementText(){
+  const val = document.getElementById('announceTextInput').value;
+  state.settingsSaving['AnnouncementText'] = true; render();
+  const timer = withSaveTimeout_('AnnouncementText');
+  google.script.run.withSuccessHandler(function(res){
+    clearTimeout(timer);
+    state.settingsSaving['AnnouncementText'] = false;
+    if(res && res.success){ state.settings = res.settings; render(); showToast('Announcement saved successfully.', 'success'); }
+    else { render(); showToast((res && res.message) || 'Could not save.', 'info'); }
+  }).withFailureHandler(function(err){
+    clearTimeout(timer);
+    state.settingsSaving['AnnouncementText'] = false;
+    console.error('updateSetting (AnnouncementText) failed:', err);
+    render();
+    showToast('Could not save the announcement: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+  }).updateSetting(state.user.userId, 'AnnouncementText', val);
+}
+
+/* ---------- Tile visibility per role (3-state: visible / hidden / disabled) ---------- */
+function toggleTileVisibility(group, key, mode){
+  const tv = JSON.parse(JSON.stringify((state.settings && state.settings.tileVisibility) || {}));
+  tv[group] = tv[group] || {};
+  tv[group][key] = mode;
+  const savingKey = 'tv_' + group + '_' + key;
+  state.settingsSaving[savingKey] = true; render();
+  const timer = withSaveTimeout_(savingKey);
+  google.script.run.withSuccessHandler(function(res){
+    clearTimeout(timer);
+    state.settingsSaving[savingKey] = false;
+    if(res && res.success){ state.settings = res.settings; render(); showToast('Tile visibility updated successfully.', 'success'); }
+    else { render(); showToast((res && res.message) || 'Could not save.', 'info'); }
+  }).withFailureHandler(function(err){
+    clearTimeout(timer);
+    state.settingsSaving[savingKey] = false; render();
+    showToast('Could not save: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+  }).updateSetting(state.user.userId, 'TileVisibility', JSON.stringify(tv));
+}
+
+/* ---------- Registration / Voting schedule (Election Timer) ---------- */
+function saveSchedule(kind){
+  const openId = kind==='reg' ? 'regOpenAt' : 'voteOpenAt';
+  const closeId = kind==='reg' ? 'regCloseAt' : 'voteCloseAt';
+  const openVal = document.getElementById(openId).value;
+  const closeVal = document.getElementById(closeId).value;
+  const openKey = kind==='reg' ? 'RegistrationOpenAt' : 'VotingOpenAt';
+  const closeKey = kind==='reg' ? 'RegistrationCloseAt' : 'VotingCloseAt';
+  const savingKey = 'schedule_' + kind;
+  state.settingsSaving[savingKey] = true; render();
+  const timer = withSaveTimeout_(savingKey);
+  google.script.run.withSuccessHandler(function(res1){
+    if(!res1 || !res1.success){ clearTimeout(timer); state.settingsSaving[savingKey]=false; render(); showToast((res1 && res1.message) || 'Could not save schedule.','info'); return; }
+    google.script.run.withSuccessHandler(function(res2){
+      clearTimeout(timer);
+      state.settingsSaving[savingKey] = false;
+      if(res2 && res2.success){ state.settings = res2.settings; render(); showToast('Schedule saved and applied immediately.', 'success'); }
+      else { render(); showToast((res2 && res2.message) || 'Could not save schedule.', 'info'); }
+    }).withFailureHandler(function(err){
+      clearTimeout(timer);
+      state.settingsSaving[savingKey]=false; render(); showToast('Could not save schedule: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+    }).updateSetting(state.user.userId, closeKey, closeVal);
+  }).withFailureHandler(function(err){
+    clearTimeout(timer);
+    state.settingsSaving[savingKey]=false; render(); showToast('Could not save schedule: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+  }).updateSetting(state.user.userId, openKey, openVal);
+}
+
+/* ---------- Reports ---------- */
+function generateReport(kind){
+  state.reportBusy[kind] = true; render();
+  const fnMap = { voting: 'generateVotingReport', nominations: 'generateNominationsReport', winner: 'generateWinnerReport' };
+  const fn = fnMap[kind] || 'generateNominationsReport';
+  google.script.run.withSuccessHandler(function(res){
+    state.reportBusy[kind] = false; render();
+    if(res && res.success){ showToast('Report ready — opening…', 'success'); window.open(res.url, '_blank'); }
+    else { showToast((res && res.message) || 'Could not generate report.', 'error'); }
+  }).withFailureHandler(function(err){
+    state.reportBusy[kind] = false; render();
+    showToast('Report generation failed: ' + (err && err.message ? err.message : 'please try again.'), 'error');
+  })[fn](state.user.userId);
+}
+
+/* ============================================================
+   Notifications
+   ============================================================ */
+function notifReadKey_(){ return NOTIF_READ_KEY_PREFIX + (state.user ? state.user.userId : ''); }
+function getReadIds_(){
+  try{ return JSON.parse(localStorage.getItem(notifReadKey_()) || '[]'); }catch(e){ return []; }
+}
+function notifId_(n){ return (n.ts||0) + '|' + (n.title||'') + '|' + (n.page||''); }
+function markNotifRead_(n){
+  const ids = getReadIds_();
+  const id = notifId_(n);
+  if(ids.indexOf(id) === -1){
+    ids.push(id);
+    localStorage.setItem(notifReadKey_(), JSON.stringify(ids.slice(-300)));
+  }
+}
+function recomputeUnreadCount_(){
+  const readIds = getReadIds_();
+  const hist = state.notifHistory || [];
+  state.notifUnreadCount = hist.filter(function(n){ return n.ts && readIds.indexOf(notifId_(n)) === -1; }).length;
+}
+function toggleNotifPanel(){
+  state.notifOpen = !state.notifOpen;
+  if(state.notifOpen){
+    google.script.run.withSuccessHandler(function(res){
+      state.notifHistory = res || []; recomputeUnreadCount_(); render();
+    }).withFailureHandler(function(err){ console.error('getNotificationHistory failed:', err); })
+      .getNotificationHistory(state.user.userId);
+  }
+  render();
+}
+function handleNotifClick(idx){
+  const list = (state.notifHistory && state.notifHistory.length) ? state.notifHistory : state.notifications;
+  const n = (list || [])[idx]; if(!n) return;
+  markNotifRead_(n);
+  recomputeUnreadCount_();
+  state.notifOpen = false;
+  if(n.level){ state.approverLevel = n.level; }
+  goto(n.page);
+  if(n.page === 'approver' && n.level) loadApproverInbox(n.level);
+}
+
+/* ============================================================
+   BACKGROUND AUTO-SYNC (silent, every ~10-15s)
+   ============================================================ */
+let syncTimer = null;
+function startAutoSync(){
+  stopAutoSync();
+  syncTimer = setInterval(silentSync, SYNC_INTERVAL_MS);
+}
+function stopAutoSync(){ if(syncTimer){ clearInterval(syncTimer); syncTimer=null; } }
+
+function silentSync(){
+  if(!state.user || !state.token) return;
+  if(state.processing || state.lockInfo || state.rejectModal || state.voteConfirm) return;
+  if(state.view === 'adminSettings' || state.view === 'register') return;
+  if(state.view === 'login' || state.view === 'boot' || state.view === 'email_gate' || state.view === 'otp_verify' || state.view === 'dashboardLoading') return;
+
+  google.script.run.withSuccessHandler(function(snap){
+    if(!snap) return;
+    let changed = false;
+    function upd(key){
+      if(!(key in snap)) return;
+      const nv = JSON.stringify(snap[key]);
+      const ov = JSON.stringify(state[key]);
+      if(nv !== ov){ state[key] = snap[key]; changed = true; }
+    }
+    upd('settings');
+    upd('notifications');
+    if('notifHistory' in snap){
+      const nv = JSON.stringify(snap.notifHistory);
+      const ov = JSON.stringify(state.notifHistory);
+      if(nv !== ov){ state.notifHistory = snap.notifHistory; recomputeUnreadCount_(); changed = true; }
+    }
+    if(!state.statusLoading && !state.registerLoading && state.view !== 'register' && 'myNomination' in snap){
+      const incoming = snap.myNomination;
+      const current = state.myNomination;
+      const nv = JSON.stringify(incoming);
+      const ov = JSON.stringify(current);
+      if(nv !== ov && incoming){
+        applyMyNomination(incoming);
+        changed = true;
+        if(state.view === 'status'){
+          state.statusUpdating = true;
+          setTimeout(function(){ state.statusUpdating = false; softRender(); }, 600);
+        }
+      }
+    }
+    if(!state.voteLoading){ upd('ballot'); upd('myVote'); }
+    if(!state.resultsLoading) upd('results');
+    if(!state.approverLoading) upd('approverInbox');
+    if('adminNominations' in snap && !(snap.adminNominations && snap.adminNominations.error)) upd('adminNominations');
+    if('adminStats' in snap && !(snap.adminStats && snap.adminStats.error)) upd('adminStats');
+    if(state.view === 'dashboard' && (isAdmin() || state.activeRole === 'Viewer') && !('adminStats' in snap)) loadAdminStats();
+
+    if(changed) softRender();
+  }).withFailureHandler(function(){ /* silent — never disrupt the UI */ })
+    .getSyncSnapshot(state.user.userId, state.view, state.approverLevel);
+}
+
+function softRender(){
+  const y = window.scrollY;
+  render();
+  window.scrollTo(0, y);
+}
+
+/* ============================================================
+   I4 — Employee Dashboard live countdown for scheduled tiles.
+   When Registration/Voting is off purely because of a future
+   "Opens at" schedule (not a manual Admin off-switch), the tile
+   shows a clock icon + the scheduled date/time + a ticking
+   countdown (rendered directly via DOM text updates, not a full
+   re-render, mirroring the existing OTP/lock countdown pattern).
+   Once any visible countdown reaches zero, a silent sync is
+   triggered so the tile unlocks automatically without a manual
+   page refresh.
+   ============================================================ */
+let dashboardCountdownHandle = null;
+function startDashboardCountdown_(){
+  stopDashboardCountdown_();
+  updateDashboardCountdowns_();
+  dashboardCountdownHandle = setInterval(updateDashboardCountdowns_, 1000);
+}
+function stopDashboardCountdown_(){
+  clearInterval(dashboardCountdownHandle); dashboardCountdownHandle = null;
+}
+function fmtCountdownLong_(ms){
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s%60;
+  if(d>0) return d+'d '+String(h).padStart(2,'0')+'h '+String(m).padStart(2,'0')+'m';
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function updateDashboardCountdowns_(){
+  const els = document.querySelectorAll('.tile-countdown[data-open]');
+  if(!els.length) return;
+  let anyReached = false;
+  els.forEach(function(el){
+    const openAt = el.getAttribute('data-open');
+    if(!openAt) return;
+    const target = new Date(openAt).getTime();
+    if(isNaN(target)) return;
+    const remaining = target - Date.now();
+    if(remaining <= 0){
+      el.textContent = 'Opening now…';
+      anyReached = true;
+    } else {
+      el.textContent = 'Opens in ' + fmtCountdownLong_(remaining);
+    }
+  });
+  if(anyReached){
+    stopDashboardCountdown_();
+    setTimeout(function(){ silentSync(); }, 1200);
+  }
+}
+
+/* ============================== VIEWS ============================== */
+function Topbar(showUser){
+  const rec = showUser ? state.user : null;
+  const notifCount = state.notifUnreadCount || 0;
+  // Email verify hue baghair employee notification bell ya role-switcher
+  // se kisi bhi page par navigate na kar sake — isliye in views par
+  // sirf naam + Log out dikhaya jata hai, koi navigation control nahi.
+  const restrictedNav = (state.view === 'email_gate' || state.view === 'otp_verify');
+  return `<div class="topbar">
+    <div class="brand"><div class="brand-mark"><img src="${LOGO_URL}" alt="EFS"></div>
+      <div class="brand-text"><b>EFS Facilities Services</b><span>Election Management System (EMS)</span></div></div>
+    ${rec ? `<div class="userbox">
+      ${restrictedNav ? '' : `<div class="notif-wrap">
+        <button class="notif-bell" onclick="toggleNotifPanel()" title="Notifications">${ic('bell',18)}${notifCount>0?`<span class="notif-badge">${notifCount>9?'9+':notifCount}</span>`:''}</button>
+        ${state.notifOpen ? NotificationPanel() : ''}
+      </div>`}
+      <span class="uid-wrap">${ic('user',16)}${rec.name} <span style="color:var(--muted)">(${rec.userId})</span></span>
+      ${restrictedNav ? '' : ((rec.roles && rec.roles.length > 1) ?
+        `<select class="tv-select" style="min-width:120px;" onchange="setActiveRole(this.value)">
+          ${rec.roles.map(r => `<option value="${r}" ${state.activeRole===r?'selected':''}>${r}</option>`).join('')}
+        </select>`
+        : `<span class="role-pill">${state.activeRole || rec.role}</span>`)}
+      <button class="logout-btn" onclick="logout()">Log out</button></div>` : ``}
+  </div>`;
+}
+function NotificationPanel(){
+  const readIds = getReadIds_();
+  const notes = (state.notifHistory && state.notifHistory.length) ? state.notifHistory : (state.notifications||[]).map(function(n,i){ return Object.assign({ts:0}, n); });
+  return `<div class="notif-panel" onclick="event.stopPropagation()">
+    <div class="notif-panel-title"><span>Notifications</span><small> </small></div>
+    ${notes.length===0 ? `<div class="notif-empty">${ic('bell',22)}<span>You're all caught up.</span></div>` :
+      `<div class="notif-list">${notes.map((n,i)=>`<div class="notif-item ${n.type} ${ n.ts && readIds.indexOf(notifId_(n))===-1 ? 'unread':''}" onclick="handleNotifClick(${i})">
+        <div class="notif-ico">${ic(n.type==='success'?'checkCircle':n.type==='warning'?'alert':'bell',16)}</div>
+        <div class="notif-txt"><b>${n.title}</b><span>${n.message}</span>${n.timeLabel?`<span class="notif-time">${n.timeLabel}</span>`:''}</div>
+      </div>`).join('')}</div>`}
+  </div>`;
+}
+function Hero(title, sub){
+  return `<div class="hero"><h1>EFS Workers Joint Committee <span class="accent">Election</span></h1><p>${sub||''}</p></div>`;
+}
+function Footer(){ return `<div class="footer-bar">Your participation builds a stronger, fairer and more connected workplace &nbsp;•&nbsp; <b>#PeopleFirst</b></div><div style="text-align:center;padding:8px 12px;font-size:10.5px;color:var(--muted);background:var(--gray-bg);"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;"></span>Built for EFS by Awais Akhtar — OPCO HR Pakistan</span></div>`; }
+
+function AnnouncementBanner(){
+  if(!state.settings || !state.settings.announcementsVisible || !state.settings.announcementText) return '';
+  return `<div class="announce-banner"><span class="icowrap">${ic('megaphone',18)}</span> <div>${state.settings.announcementText}</div></div>`;
+}
+
+function BootView(){ return `${Topbar(false)}<div class="login-wrap"><div class="spinner"></div></div>`; }
+
+function LoginView(){
+  return `${Topbar(false)}
+  <div class="login-wrap">
+    <div class="login-particle" style="left:8%;animation-duration:8s;animation-delay:0s;"></div>
+    <div class="login-particle" style="left:22%;animation-duration:10s;animation-delay:1.5s;"></div>
+    <div class="login-particle" style="left:38%;animation-duration:9s;animation-delay:3s;"></div>
+    <div class="login-particle" style="left:55%;animation-duration:11s;animation-delay:0.8s;"></div>
+    <div class="login-particle" style="left:70%;animation-duration:7.5s;animation-delay:2.2s;"></div>
+    <div class="login-particle" style="left:85%;animation-duration:10.5s;animation-delay:4s;"></div>
+    <div class="login-particle" style="left:15%;animation-duration:9.5s;animation-delay:5s;"></div>
+    <div class="login-particle" style="left:65%;animation-duration:8.5s;animation-delay:3.5s;"></div>
+    <div class="card login-card">
+     <div class="brand-mark"><img src="${LOGO_URL}" alt="EFS"></div>
+<h2>Election Management System (EMS)</h2>
+<p class="sub">Sign in with your Employee ID to continue</p>
+    <div class="field"><label>Employee ID</label><input id="empIdInput" type="text" placeholder="e.g. 100XXXX"></div>
+    <div class="field"><label>Password</label><input id="passInput" type="password" placeholder="Enter your password"></div>
+    ${state.loginError ? `<p style="color:var(--danger);font-size:12.5px;text-align:left;margin:-8px 0 14px;">${ic('ban',14)} ${state.loginError}</p>` : ''}
+    <button class="btn" onclick="onLoginClick()">Sign In</button>
+  </div></div></div>${Footer()}`;
+}
+
+/* H6 — Step 1 of email verification: enter + submit email address.
+   On success the server sends a 4-digit OTP and the client moves
+   on to the OTP verification screen (OtpVerifyView). */
+function EmailGateView(){
+  return `${Topbar(true)}
+  <div class="login-wrap"><div class="card login-card">
+    <div style="margin-bottom:10px;display:flex;justify-content:center;color:var(--navy);">${ic('mail',30)}</div>
+    <h2>Verify Your Email</h2>
+    <p class="sub">We don't have a verified email on file for you. Enter your email address and we'll send you a 4-digit verification code.</p>
+    <div class="field"><label>Email Address</label><input id="emailInput" type="email" placeholder="Enter your email address"></div>
+    ${state.emailError ? `<p style="color:var(--danger);font-size:12.5px;text-align:left;margin:-8px 0 14px;">${ic('ban',14)} ${state.emailError}</p>` : ''}
+    <button class="btn" onclick="onRequestOtp()">Send Verification Code</button>
+  </div></div>`;
+}
+
+/* H6 — Step 2: enter the 4-digit OTP that was emailed. Four
+   individual boxes with auto-advance/paste support, a live
+   10-minute countdown, and a Resend button that stays disabled
+   until that countdown reaches zero (mirrors OTP expiry). */
+function OtpVerifyView(){
+  const boxes = Array.from({length: OTP_LENGTH}).map((_, i) =>
+    `<input id="otpBox${i}" class="otp-box" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code"
+       oninput="onOtpBoxInput(${i}, this)" onkeydown="onOtpBoxKeydown(${i}, event)" ${i===0?'onpaste="onOtpPaste(event)"':''}>`
+  ).join('');
+  return `${Topbar(true)}
+  <div class="login-wrap"><div class="card login-card">
+    <div style="margin-bottom:10px;display:flex;justify-content:center;color:var(--navy);">${ic('shieldCheck',32)}</div>
+    <h2>Enter Verification Code</h2>
+    <p class="sub">We've sent a 4-digit code to <b style="color:var(--navy);">${state.otpMasked || state.otpEmail}</b>. Enter it below to verify your email.</p>
+    <div class="otp-boxes">${boxes}</div>
+    <div class="otp-meta">Code expires in <b id="otpCountdownLabel" class="live-countdown">${fmtCountdown(state.otpExpiresAt - Date.now())}</b></div>
+    ${state.otpError ? `<p style="color:var(--danger);font-size:12.5px;text-align:center;margin:-6px 0 14px;">${ic('ban',14)} ${state.otpError}</p>` : ''}
+    <button class="btn" ${state.otpProcessing?'disabled':''} onclick="onVerifyOtp()">${state.otpProcessing ? `<span class="mini-spinner light"></span>Verifying…` : 'Verify Email'}</button>
+    <div class="otp-timer-row">
+      <button class="otp-resend-btn" id="otpResendBtn" ${state.otpResendReady && !state.otpProcessing ? '' : 'disabled'} onclick="onResendOtp()">${ic('refresh',14)} Resend OTP</button>
+    </div>
+    <button class="otp-changeemail" onclick="backToEmailEntry()">Entered the wrong email? Change it</button>
+  </div></div>`;
+}
+
+function AdminStatCards(){
+  if(!isAdmin() && state.activeRole !== 'Viewer') return '';
+  const st = state.adminStats;
+  if(!st){
+    return `<div class="stat-grid">${Array(6).fill(0).map(()=>`<div class="stat-card">
+      <div class="skeleton sk-line" style="width:46px;height:24px;margin-bottom:8px;"></div>
+      <div class="skeleton sk-line" style="width:84px;height:10px;"></div>
+    </div>`).join('')}</div>`;
+  }
+  return `<div class="stat-grid">
+    <div class="stat-card"><div class="num">${st.totalEmployees}</div><div class="lbl">Total Employees</div></div>
+    <div class="stat-card"><div class="num">${st.totalNominations}</div><div class="lbl">Total Nominations</div></div>
+    <div class="stat-card accent-warn"><div class="num">${st.pendingReview}</div><div class="lbl">Pending Review</div></div>
+    <div class="stat-card accent-red"><div class="num">${st.rejected}</div><div class="lbl">Rejected</div></div>
+    <div class="stat-card accent-green"><div class="num">${st.onBallot}</div><div class="lbl">On Ballot</div></div>
+        <div class="stat-card accent-green"><div class="num">${st.totalVotesCast}</div><div class="lbl">Votes Cast</div></div>
+    <div class="stat-card"><div class="num">${st.turnoutPercent}%</div><div class="lbl">Turnout</div></div>
+  </div>`;
+}
+
+function AdminPendingNominationsWidget(){
+  if(!isAdmin()) return '';
+  if(state.adminNominations === null){
+    return `<div class="pending-noms">
+      <div class="pending-noms-title"><span>Nominations Pending With Approvers</span></div>
+      ${Array(3).fill(0).map(()=>`<div class="pending-row">
+        <div class="skeleton sk-circle" style="width:28px;height:28px;"></div>
+        <div style="flex:1;"><div class="skeleton sk-line" style="width:40%;margin-bottom:6px;"></div><div class="skeleton sk-line" style="width:60%;height:9px;"></div></div>
+        <div class="skeleton sk-line" style="width:70px;height:18px;border-radius:20px;"></div>
+      </div>`).join('')}
+    </div>`;
+  }
+  const norm = s => String(s||'').trim().toLowerCase();
+  const pending = (state.adminNominations || []).filter(n => norm(n.status) === 'pending approver 1' || norm(n.status) === 'pending approver 2');
+  if(pending.length === 0){
+    return `<div class="pending-noms"><div class="pending-noms-title"><span>Nominations Pending With Approvers</span></div>
+      <div class="empty" style="padding:22px;">${ic('checkCircle',26)}<div style="margin-top:6px;">Nothing pending — all caught up.</div></div></div>`;
+  }
+  return `<div class="pending-noms">
+    <div class="pending-noms-title"><span>Nominations Pending With Approvers (${pending.length})</span><a onclick="goto('adminManage')">View all →</a></div>
+    ${pending.slice(0,6).map(n=>`<div class="pending-row">
+      ${ic('clock',16,'var(--warning)')}
+      <div class="pr-sub"><b>${n.name}</b> · ${n.nomId} — <span>${n.status}</span> <span style="color:var(--muted);">· ${n.submittedAt||''}</span></div>
+      <div class="pr-actions">
+        <button class="btn btn-sm" onclick="adminOverride('${n.nomId}','approve')">Approve</button>
+        <button class="btn btn-sm btn-danger" onclick="adminOverride('${n.nomId}','reject')">Reject</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function DashboardLoadingView(){
+  return `${Topbar(true)}${Hero()}
+  <main>
+    <div class="welcome-banner" style="background:#fff;box-shadow:var(--shadow-sm);">
+      <div class="skeleton sk-circle" style="width:42px;height:42px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton sk-line" style="width:160px;margin-bottom:8px;"></div>
+        <div class="skeleton sk-line" style="width:110px;height:10px;"></div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      ${Array(4).fill(0).map(()=>`<div class="stat-card">
+        <div class="skeleton sk-line" style="width:46px;height:24px;margin-bottom:8px;"></div>
+        <div class="skeleton sk-line" style="width:84px;height:10px;"></div>
+      </div>`).join('')}
+    </div>
+    <div class="grid">
+      ${Array(3).fill(0).map(()=>`<div class="tile" style="cursor:default;">
+        <div class="skeleton sk-circle" style="width:52px;height:52px;margin:0 auto 14px;"></div>
+        <div class="skeleton sk-line" style="width:70%;margin:0 auto 8px;"></div>
+        <div class="skeleton sk-line" style="width:50%;height:10px;margin:0 auto;"></div>
+      </div>`).join('')}
+    </div>
+  </main>`;
+}
+
+function tileMode_(tv, group, key){
+  const v = tv && tv[group] ? tv[group][key] : undefined;
+  if(v === false || v === 'hidden') return 'hidden';
+  if(v === 'disabled') return 'disabled';
+  return 'visible';
+}
+
+/* I4 — determines whether a tile is closed purely because of a
+   future "Opens at" schedule (manual switch is still ON), in which
+   case we show a live countdown instead of a flat "disabled" label. */
+function scheduleInfo_(manualEnabled, windowMessage, openAt){
+  if(!manualEnabled) return null; // manually turned off by Admin — no countdown to show
+  if(openAt && windowMessage && windowMessage.indexOf('Opens') === 0){
+    return { openAt: openAt, label: windowMessage };
+  }
+  return null;
+}
+
+function DashboardView(){
+  const rec = state.user;
+  const isApprover = state.activeRole === 'Approver1' || state.activeRole === 'Approver2';
+  const isViewer = state.activeRole === 'Viewer';
+  const admin = isAdmin();
+const defaultTv = {Employee:{register:'visible',vote:'visible',status:'visible',results:'visible'},Approver:{approverInbox:'visible',results:'visible'},Viewer:{results:'visible',manage:'hidden',settings:'hidden',reports:'hidden'},Admin:{manage:'visible',settings:'visible',reports:'visible',results:'visible'}};
+  const s = state.settings || { registrationEnabled:true, nominationEnabled:true, votingEnabled:true, resultsVisible:true, tileVisibility: defaultTv };
+  const tv = s.tileVisibility || defaultTv;
+  const regOn = s.registrationEnabled && s.nominationEnabled;
+  const regSchedule = scheduleInfo_(s.registrationManualEnabled, s.registrationWindowMessage, s.registrationOpenAt);
+  const voteSchedule = scheduleInfo_(s.votingManualEnabled, s.votingWindowMessage, s.votingOpenAt);
+
+  function tile(onclick, iconName, title, sub, enabled, forceDisabledLabel, schedule){
+    if(enabled === false){
+      if(schedule){
+        return `<div class="tile disabled-tile">
+          <div class="tico">${ic('clock',26)}</div>
+          <b>${title}</b>
+          <span>${schedule.label}</span>
+          <span class="tile-countdown" data-open="${schedule.openAt}">Calculating…</span>
+        </div>`;
+      }
+      return `<div class="tile disabled-tile"><div class="tico">${ic(iconName,26)}</div><b>${title}</b><span>${forceDisabledLabel || 'Currently disabled by Admin'}</span></div>`;
+    }
+    return `<div class="tile" onclick="${onclick}"><div class="tico">${ic(iconName,26)}</div><b>${title}</b><span>${sub}</span></div>`;
+  }
+
+  let tiles = '';
+  if(admin){
+    tiles += `<div class="tile" onclick="goto('adminManage')"><div class="tico">${ic('folder',26)}</div><b>Manage Nominations</b><span>Review, approve, reject, override</span></div>`;
+    tiles += `<div class="tile" onclick="goto('adminSettings')"><div class="tico">${ic('gear',26)}</div><b>Election Settings</b><span>Schedules, tiles, toggles</span></div>`;
+    tiles += `<div class="tile" onclick="goto('adminReports')"><div class="tico">${ic('fileText',26)}</div><b>Reports</b><span>Download PDF reports</span></div>`;
+    tiles += `<div class="tile" onclick="goto('results')"><div class="tico">${ic('chart',26)}</div><b>Live Results</b><span>View ballot & tally</span></div>`;
+  } else if(isApprover){
+    const inboxMode = tileMode_(tv, 'Approver', 'approverInbox');
+    const resultsMode = tileMode_(tv, 'Approver', 'results');
+    if(inboxMode !== 'hidden'){
+      tiles += tile(`state.approverLevel=${state.activeRole==='Approver1'?1:2}; goto('approver'); loadApproverInbox(${state.activeRole==='Approver1'?1:2});`,
+        'checkCircle', 'Approval Inbox', 'Review pending nominations', inboxMode !== 'disabled');
+    }
+    if(resultsMode !== 'hidden' && s.resultsVisible) tiles += tile("goto('results')", 'chart', 'Results', 'View ballot & tally', resultsMode !== 'disabled');
+  } else if(isViewer){
+    const resultsMode = tileMode_(tv, 'Viewer', 'results');
+    const manageModeV = tileMode_(tv, 'Viewer', 'manage');
+    const settingsModeV = tileMode_(tv, 'Viewer', 'settings');
+    const reportsModeV = tileMode_(tv, 'Viewer', 'reports');
+    if(resultsMode !== 'hidden' && s.resultsVisible) tiles += tile("goto('results')", 'chart', 'Results', 'View ballot & tally', resultsMode !== 'disabled');
+    if(manageModeV !== 'hidden') tiles += tile("goto('adminManage')", 'folder', 'Manage Nominations', 'Review, approve, reject, override', manageModeV !== 'disabled');
+    if(settingsModeV !== 'hidden') tiles += tile("goto('adminSettings')", 'gear', 'Election Settings', 'Schedules, tiles, toggles', settingsModeV !== 'disabled');
+    if(reportsModeV !== 'hidden') tiles += tile("goto('adminReports')", 'fileText', 'Reports', 'Download professional PDF reports', reportsModeV !== 'disabled');
+  } else {
+    const regMode = tileMode_(tv, 'Employee', 'register');
+    const voteMode = tileMode_(tv, 'Employee', 'vote');
+    const statusMode = tileMode_(tv, 'Employee', 'status');
+    const resultsMode = tileMode_(tv, 'Employee', 'results');
+    if(regMode !== 'hidden') tiles += tile("goto('register')", 'user', 'Registration', 'Nominate yourself', regMode !== 'disabled' && regOn, null, regMode !== 'disabled' ? regSchedule : null);
+    /* H1 — professional dedicated icons for these two tiles */
+    if(voteMode !== 'hidden') tiles += tile("goto('vote')", 'ballotBox', 'Vote Cast', 'Cast your vote', voteMode !== 'disabled' && s.votingEnabled, null, voteMode !== 'disabled' ? voteSchedule : null);
+    if(statusMode !== 'hidden') tiles += tile("openMyStatus()", 'clipboardCheck', 'My Status', 'Track your nomination', statusMode !== 'disabled');
+    if(resultsMode !== 'hidden' && s.resultsVisible){
+      tiles += tile("goto('results')", 'chart', 'Results', 'View ballot & tally', resultsMode !== 'disabled');
+    }
+  }
+  if(!tiles){
+    tiles = `<div class="empty" style="grid-column:1/-1;"><div class="eico">${ic('folder',32)}</div>No tiles are currently enabled for your account. Contact the Admin.</div>`;
+  }
+
+  return `${Topbar(true)}${Hero()}
+  <main>
+    ${AnnouncementBanner()}
+    <div class="welcome-banner"><div class="icon">${ic('smile',22)}</div>
+      <div><b>Hello, ${rec.name}</b><span>${rec.designation || ''}</span></div></div>
+    ${AdminStatCards()}
+    <div class="grid">${tiles}</div>
+  </main>${Footer()}`;
+}
+
+function StepTracker(status){
+  const steps=[{k:'submitted',l:'Submitted'},{k:'a1',l:'Approver 1'},{k:'a2',l:'Approver 2'},{k:'ballot',l:'On Ballot'}];
+  let idx=0;
+  if(status==='Pending Approver 1') idx=1;
+  else if(status==='Pending Approver 2') idx=2;
+  else if(status==='Approved') idx=3;
+  else if(status==='Rejected') idx=1;
+  return `<div class="steps">${steps.map((s,i)=>`<div class="step ${i<idx?'done':''} ${i===idx?'active':''}"><div class="dot">${i<idx?ic('check',13):i+1}</div><span>${s.l}</span></div>`).join('')}</div>`;
+}
+
+function StatusSkeletonView(){
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card">
+      <div class="skeleton sk-line" style="width:230px;height:20px;margin-bottom:22px;"></div>
+      <div class="status-card">
+        <div class="skeleton sk-circle" style="width:56px;height:56px;margin:0 auto 16px;"></div>
+        <div class="skeleton sk-line" style="width:55%;margin:0 auto 12px;"></div>
+        <div class="skeleton sk-line" style="width:35%;height:22px;border-radius:20px;margin:0 auto 18px;"></div>
+        <div class="skeleton sk-block" style="width:100%;"></div>
+      </div>
+    </div>
+  </main>${Footer()}`;
+}
+
+function StatusView(){
+  const nom = state.myNomination;
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">My Nomination Status</h2>
+    ${!nom ? `<div class="empty"><div class="eico">${ic('folder',32)}</div>You haven't submitted a nomination yet.
+        <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;">
+          <button class="btn btn-outline btn-sm" onclick="openMyStatus()">${ic('refresh',13)} Refresh</button>
+          <button class="btn btn-navy btn-sm" onclick="goto('register')">Go to Registration</button>
+        </div></div>` : `
+      <div class="status-card">
+        ${state.statusUpdating ? `<div class="status-updating-veil"><span class="mini-spinner"></span> Updating status…</div>` : ''}
+        <div class="big-icon" style="color:${nom.Status==='Approved'?'var(--green-dark)':nom.Status==='Rejected'?'var(--danger)':'var(--warning)'};">${nom.Status==='Approved'?ic('checkCircle',40):nom.Status==='Rejected'?ic('xCircle',40):ic('clock',40)}</div>
+        <div style="margin-bottom:6px;font-size:15px;color:var(--navy);font-weight:700;">${nom.Name||state.user.name} · ${nom.NominationID}</div>
+        <span class="badge ${nom.Status==='Approved'?'approved':nom.Status==='Rejected'?'rejected':'pending'}">${nom.Status}</span>
+        ${nom.Status!=='Rejected' ? StepTracker(nom.Status) : ''}
+        ${nom.Status==='Rejected' && nom.RejectionRemarks ? `<div class="remarks-box"><b>Reason for rejection</b>${nom.RejectionRemarks}</div>` : ''}
+        ${nom.Status==='Rejected' && !nom.RejectionRemarks ? `<div class="remarks-box"><b>Reason for rejection</b>No specific reason was provided. Contact your Approver or Admin for details.</div>` : ''}
+        <p style="font-size:12.5px;color:var(--muted);margin-top:14px;">Submitted: ${nom.Timestamp}</p>
+        <p style="font-size:11px;color:var(--muted);">This page refreshes automatically — no need to reload.</p>
+      </div>`}
+    </div></main>${Footer()}`;
+}
+
+function EligibilityOverlay(){
+  return `<div class="modal-backdrop" style="z-index:95;">
+    <div class="modal" style="max-width:560px;text-align:left;">
+      <div style="text-align:center;margin-bottom:2px;"><div class="brand-mark" style="width:52px;height:52px;margin:0 auto 10px;"><img src="${LOGO_URL}" alt="EFS"></div></div>
+      <h3 style="color:var(--navy);justify-content:center;text-align:center;">Employee Joint Committee Candidate Nomination</h3>
+      <div style="background:linear-gradient(120deg,var(--navy),var(--navy-light));color:#fff;text-align:center;padding:8px 12px;border-radius:8px;font-weight:800;font-size:12px;letter-spacing:.3px;margin:10px 0 14px;">ELIGIBILITY CRITERIA FOR NOMINATIONS OF CANDIDATES</div>
+      <p style="font-size:13px;font-weight:700;color:var(--text);margin:0 0 10px;">To be eligible for nomination as a worker representative, the candidate must meet the following criteria:</p>
+      <ol style="padding-left:20px;margin:0 0 18px;font-size:13px;line-height:1.7;color:var(--text);">
+        <li>Currently works for the company with a valid work contract with EFS or a third party.</li>
+        <li>Has completed at least one year of service with EFS</li>
+        <li>Is not holding a management position within the company.</li>
+        <li>Has not been convicted of an offense that is prejudicial to honor or integrity, unless they have been exonerated</li>
+        <li>Has not been subject to any of the disciplinary sanctions listed in Article (59) of the Labour Law.</li>
+      </ol>
+      <button class="btn" onclick="acknowledgeEligibility()">I Understand</button>
+    </div>
+  </div>`;
+}
+function acknowledgeEligibility(){
+  state.eligibilityAcknowledged = true;
+  render();
+  setTimeout(initSigPad, 60);
+  google.script.run.logEligibilityAck(state.user.userId, detectDevice(), clientIp);
+}
+
+function RegisterSkeletonView(){
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="skeleton sk-line" style="width:100%;height:48px;border-radius:14px 14px 0 0;"></div>
+    <div class="form-body" style="border-top:none;">
+      <div class="form-row">
+        ${Array(6).fill(0).map(()=>`<div class="form-cell"><div class="skeleton sk-line" style="width:60%;height:9px;margin-bottom:8px;"></div><div class="skeleton sk-line" style="width:80%;"></div></div>`).join('')}
+      </div>
+      <div style="padding:16px;"><div class="skeleton sk-line" style="width:100%;height:56px;"></div></div>
+      <div style="padding:16px;"><div class="skeleton sk-block" style="width:100%;height:160px;"></div></div>
+    </div>
+  </main>${Footer()}`;
+}
+
+function RegisterView(){
+  const rec = state.user;
+  const s = state.settings || { registrationEnabled:true, nominationEnabled:true };
+
+  if(!s.registrationEnabled || !s.nominationEnabled){
+    return `${Topbar(true)}<main>
+      <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+      <div class="card"><div class="empty"><div class="eico">${ic('ban',32)}</div>Registration/Nomination is currently closed by the Admin.
+        ${s.registrationWindowMessage ? `<div class="window-msg">${ic('clock',15)} ${s.registrationWindowMessage}</div>` : ''}
+      </div></div>
+    </main>${Footer()}`;
+  }
+
+  const already = !!state.myNomination;
+  if(already){
+    return `${Topbar(true)}<main>
+      <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',16)} Back to Dashboard</button>
+      <div class="card" style="text-align: center; max-width: 450px; margin: 40px auto; padding: 40px 20px;">
+        <div style="margin-bottom: 18px; display: flex; justify-content: center;">
+          ${ic('checkCircle', 64, 'var(--green)')}
+        </div>
+        <h2 style="margin: 0 0 10px; color: var(--navy); font-family: var(--font-head); font-size: 22px;">Application Already Submitted</h2>
+        <p style="color: var(--muted); margin-bottom: 28px; font-size: 14px; line-height: 1.5;">
+          Go to <b>My Status</b> to check your application status.
+        </p>
+        <div style="display: flex; justify-content: center;">
+          <button class="btn" style="flex: 1; max-width: 220px;" onclick="goto('status')">Go to My Status</button>
+        </div>
+      </div>
+    </main>${Footer()}`;
+  }
+
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    ${s.registrationWindowMessage ? `<div class="window-msg" style="margin-bottom:12px;">${ic('clock',15)} Registration ${s.registrationWindowMessage}</div>` : ''}
+    <div class="form-title">Employee Joint Committee Candidate Nomination Form</div>
+    <div class="form-body">
+      <div class="form-row">
+        <div class="form-cell"><label>Name</label><div class="val">${rec.name}</div></div>
+        <div class="form-cell"><label>Employee Code</label><div class="val">${rec.userId}</div></div>
+        <div class="form-cell"><label>Designation</label><div class="val">${rec.designation||'—'}</div></div>
+        <div class="form-cell"><label>Date of Joining</label><div class="val">${rec.dateOfJoining||'—'}</div></div>
+        <div class="form-cell"><label>Project / Site</label><div class="val">${rec.project||'—'}</div></div>
+        <div class="form-cell"><label>QID Number</label><div class="val">${rec.qid||'—'}</div></div>
+      </div>
+      <div class="declare-box" style="padding-bottom:8px;">
+        <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px;">Short Introduction <span style="color:var(--muted);font-weight:500;">(optional — shown to voters on your vote card)</span></label>
+        <textarea id="introInput" maxlength="${MAX_INTRO_CHARS}" oninput="updateIntroCounter()" placeholder="e.g. 5 years at EFS as Site Supervisor, committed to fair workplace practices." style="width:100%;min-height:56px;padding:10px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;"></textarea>
+        <div class="intro-counter" id="introCounter">0 / ${MAX_INTRO_CHARS}</div>
+      </div>
+      <div class="declare-box">I hereby nominate myself as the candidate for the election of Employee Joint Committee Member (Worker's Representative). I assure to adhere and follow all the procedures and regulations throughout the elections.</div>
+      <div class="declare-check"><input type="checkbox" id="declareChk" onchange="toggleDeclare(this.checked)">
+        <label for="declareChk">I declare that the above statement is true and I agree to the terms of nomination.</label></div>
+      <div class="sig-wrap"><div class="siglabel">Sign below to confirm your nomination</div>
+        <canvas id="sigPad" class="sigpad"></canvas>
+        <div class="sig-actions"><button class="btn btn-outline btn-sm" onclick="clearSig()">Clear Signature</button></div></div>
+      <div class="submit-row"><button class="btn" id="submitNomBtn" style="width:auto;" disabled onclick="submitNomination()">Submit Nomination</button></div>
+    </div>
+  </main>${Footer()}`;
+}
+
+function VoteSkeletonView(){
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card">
+      <div class="skeleton sk-line" style="width:180px;height:20px;margin-bottom:8px;"></div>
+      <div class="skeleton sk-line" style="width:340px;height:12px;margin-bottom:20px;"></div>
+      <div class="vote-grid">
+        ${Array(6).fill(0).map(()=>`<div class="vote-card" style="pointer-events:none;">
+          <div class="skeleton" style="width:100%;aspect-ratio:3/4;border-radius:0;"></div>
+          <div class="cinfo">
+            <div class="skeleton sk-line" style="width:75%;margin:0 auto 6px;"></div>
+            <div class="skeleton sk-line" style="width:50%;height:9px;margin:0 auto;"></div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </main>${Footer()}`;
+}
+
+/* H2/H3/I1 — VIP vote screen: candidate the employee actually voted
+   for shows a premium "VOTED" rubber-stamp over their photo plus a
+   subtle transparent watermark across the photo itself; each card
+   shows the optional 1-2 line introduction; clicking a candidate
+   opens the confirm popup (onCandidateClick) instead of voting
+   instantly. */
+function VoteView(){
+  const candidates = state.ballot || [];
+  const myVote = state.myVote;
+  const s = state.settings || { votingEnabled:true };
+  if(!s.votingEnabled){
+    return `${Topbar(true)}<main>
+      <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+      <div class="card"><div class="empty"><div class="eico">${ic('ban',32)}</div>Voting is currently closed by the Admin.
+        ${s.votingWindowMessage ? `<div class="window-msg">${ic('clock',15)} ${s.votingWindowMessage}</div>` : ''}
+      </div></div>
+    </main>${Footer()}`;
+  }
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    ${s.votingWindowMessage ? `<div class="window-msg" style="margin-bottom:12px;">${ic('clock',15)} Voting ${s.votingWindowMessage}</div>` : ''}
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">Cast Your Vote</h2>
+    ${candidates.length===0 ? `<div class="empty"><div class="eico">${ic('ballot',32)}</div>No approved candidates on the ballot yet.</div>` : `
+      <p style="font-size:13px;color:var(--muted);margin-top:-6px;">Tap a candidate to review and confirm. You can vote only once.</p>
+      <div class="vote-grid">
+        ${candidates.map(c=>`
+          <div class="vote-card ${myVote===c.nomId?'selected voted':''}" onclick="onCandidateClick('${c.nomId}')">
+            ${myVote!==c.nomId ? `<div class="checkmark">${ic('check',13)}</div>` : ''}
+            <div class="photo-box">
+              ${c.photoUrl ? `<img src="${c.photoUrl}">` : `<div class="initials">${c.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>`}
+              ${myVote===c.nomId ? `<div class="voted-watermark"><span>Voted</span></div>` : ''}
+            </div>
+            <div class="cinfo"><b>${c.name}</b><span>${c.designation||''}</span><span>${c.project||''}</span>
+              ${c.introduction ? `<span class="vote-intro">${c.introduction}</span>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+      ${myVote ? `<div class="badge approved" style="margin-top:16px;">${ic('check',12)} Vote submitted — thank you for participating</div>` : ''}
+    `}</div>
+  </main>${Footer()}`;
+}
+
+function ResultsSkeletonView(){
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card">
+      <div class="skeleton sk-line" style="width:180px;height:20px;margin-bottom:18px;"></div>
+      ${Array(4).fill(0).map(()=>`<div class="bar-row"><div class="skeleton sk-line" style="width:40%;margin-bottom:6px;"></div><div class="skeleton" style="height:14px;border-radius:6px;"></div></div>`).join('')}
+    </div>
+  </main>${Footer()}`;
+}
+
+function ResultsView(){
+  const s = state.settings || { resultsVisible:true };
+  const isPrivileged = state.user.role === 'Admin' || state.user.role === 'Approver1' || state.user.role === 'Approver2';
+  if(!s.resultsVisible && !isPrivileged){
+    return `${Topbar(true)}<main>
+      <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+      <div class="card"><div class="empty"><div class="eico">${ic('ban',32)}</div>Results are not published yet.</div></div>
+    </main>${Footer()}`;
+  }
+  const ranked = state.results || [];
+  const max = Math.max(1, ...ranked.map(r=>r.count));
+  const total = ranked.reduce((a,b)=>a+b.count,0);
+
+  const avatarColors = ['#0d2b4e','#5a6b7d','#7a8a9a','#94a2ae'];
+  const barColors = ['linear-gradient(90deg,var(--green),var(--green-dark))','#8a97a6','#b7c2cf','#d7dfe8'];
+
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">Live Election Results</h2>
+    ${ranked.length===0 ? `<div class="empty"><div class="eico">${ic('chart',32)}</div>No candidates on the ballot yet.</div>` : `
+      <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;margin-bottom:18px;">${total} vote(s) cast so far</p>
+      <div class="result-list">
+      ${ranked.map((r,i)=>{
+        const pct = (r.count/max*100);
+        const avatarBg = avatarColors[Math.min(i,avatarColors.length-1)];
+        const barBg = barColors[Math.min(i,barColors.length-1)];
+        const initials = (r.name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        return `<div class="result-card">
+          <div class="result-avatar" style="background:${avatarBg};">
+            ${r.photoUrl ? `<img src="${r.photoUrl}">` : initials}
+          </div>
+          <div class="result-body">
+            <div class="result-name">${r.name}</div>
+            <div class="result-desig">${r.designation||''}</div>
+            <div class="result-bar-track"><div class="result-bar-fill" style="width:${pct}%;background:${barBg};"></div></div>
+          </div>
+          <div class="result-count-num" style="color:${i===0?'var(--green-dark)':'var(--navy)'};">${r.count}</div>
+        </div>`;
+      }).join('')}
+      </div>
+    `}</div>
+  </main>${Footer()}`;
+}
+
+function ApproverSkeletonView(){
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card">
+      <div class="skeleton sk-line" style="width:220px;height:20px;margin-bottom:8px;"></div>
+      <div class="skeleton sk-line" style="width:360px;height:11px;margin-bottom:18px;"></div>
+      <table><thead><tr><th>ID</th><th>Candidate</th><th>Project</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody>
+        ${Array(4).fill(0).map(()=>`<tr>
+          <td><div class="skeleton sk-line" style="width:70px;"></div></td>
+          <td><div class="skeleton sk-line" style="width:100px;margin-bottom:5px;"></div><div class="skeleton sk-line" style="width:70px;height:9px;"></div></td>
+          <td><div class="skeleton sk-line" style="width:80px;"></div></td>
+          <td><div class="skeleton sk-line" style="width:110px;"></div></td>
+          <td><div class="skeleton sk-line" style="width:70px;height:26px;"></div></td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </main>${Footer()}`;
+}
+
+function ApproverInboxView(){
+  const level = state.approverLevel;
+  const label = level===1 ? 'Approver 1' : 'Approver 2';
+  const pending = state.approverInbox || [];
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">${label} — Approval Inbox</h2>
+    <p style="font-size:12px;color:var(--muted);margin-top:-6px;">Once you approve or reject a nomination, that decision is locked. Rejecting requires a reason.</p>
+    ${pending.length===0 ? `<div class="empty"><div class="eico">${ic('inbox',32)}</div>No nominations pending your approval.</div>` : `
+    <table><thead><tr><th>ID</th><th>Candidate</th><th>Project</th><th>Submitted</th><th>Action</th></tr></thead><tbody>
+      ${pending.map(n=>`<tr>
+        <td>${n.nomId}</td>
+        <td>${n.name}<br><span style="color:var(--muted);font-size:11.5px;">${n.designation||''}</span></td>
+        <td>${n.project||''}</td>
+        <td><span style="color:var(--navy);">${ic('clock',13)} ${n.submittedAt||'—'}</span></td>
+        <td><button class="btn btn-sm" style="margin-bottom:6px;" onclick="doApproverAction('${n.nomId}',${level},'approve','${n.token}')">Approve</button><br>
+            <button class="btn btn-sm btn-danger" onclick="doApproverAction('${n.nomId}',${level},'reject','${n.token}')">Reject</button></td>
+      </tr>`).join('')}
+    </tbody></table>`}</div>
+  </main>${Footer()}`;
+}
+
+function AdminManageView(){
+  const rows = state.adminNominations || [];
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">Manage Registrations & Nominations</h2>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">Regular approver decisions are locked once made. Admin can still override at any stage. Rejecting requires a reason.</p>
+    ${state.adminNominations === null ? `<table><thead><tr><th>ID</th><th>Candidate</th><th>Project</th><th>Status</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody>${Array(4).fill(0).map(()=>`<tr>
+        <td><div class="skeleton sk-line" style="width:70px;"></div></td>
+        <td><div class="skeleton sk-line" style="width:100px;margin-bottom:5px;"></div><div class="skeleton sk-line" style="width:70px;height:9px;"></div></td>
+        <td><div class="skeleton sk-line" style="width:80px;"></div></td>
+        <td><div class="skeleton sk-line" style="width:70px;height:18px;border-radius:20px;"></div></td>
+        <td><div class="skeleton sk-line" style="width:110px;"></div></td>
+        <td><div class="skeleton sk-line" style="width:70px;height:26px;"></div></td>
+      </tr>`).join('')}</tbody></table>` :
+    rows.length===0 ? `<div class="empty"><div class="eico">${ic('folder',32)}</div>No nominations submitted yet.</div>` : `
+    <table><thead><tr><th>ID</th><th>Candidate</th><th>Project</th><th>Status</th><th>Submitted</th><th>Action</th></tr></thead><tbody>
+      ${rows.map(n=>`<tr>
+        <td>${n.nomId}</td>
+        <td>${n.name}<br><span style="color:var(--muted);font-size:11.5px;">${n.designation||''}</span></td>
+        <td>${n.project||''}</td>
+        <td><span class="badge ${n.status==='Approved'?'approved':n.status==='Rejected'?'rejected':'pending'}">${n.status}</span>
+            ${n.status==='Rejected' && n.remarks ? `<div style="font-size:11px;color:var(--danger);margin-top:4px;">${n.remarks}</div>` : ''}</td>
+        <td><span style="color:var(--navy);">${ic('clock',13)} ${n.submittedAt||'—'}</span></td>
+        <td><button class="btn btn-sm" style="margin-bottom:6px;" onclick="adminOverride('${n.nomId}','approve')">Approve</button><br>
+            <button class="btn btn-sm btn-danger" style="margin-bottom:6px;" onclick="adminOverride('${n.nomId}','reject')">Reject</button><br>
+            <button class="btn btn-sm btn-outline" ${state.reportBusy['ind_'+n.nomId]?'disabled':''} onclick="generateIndividualReport('${n.nomId}')">${state.reportBusy['ind_'+n.nomId] ? `<span class="mini-spinner"></span>` : ic('fileText',13) + ' Report'}</button></td>
+      </tr>`).join('')}
+    </tbody></table>`}</div>
+  </main>${Footer()}`;
+}
+
+function AdminReportsView(){
+  const busy = state.reportBusy || {};
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">Reports</h2>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;"></p>
+    <div class="report-grid">
+      <div class="report-card">
+        <div class="ricon">${ic('ballot',26)}</div>
+        <b>Voting Status Report</b>
+        <span> </span>
+        <button class="btn btn-navy btn-sm" ${busy.voting?'disabled':''} onclick="generateReport('voting')">${busy.voting ? `<span class="mini-spinner light"></span>Generating…` : 'Generate PDF'}</button>
+      </div>
+      <div class="report-card">
+        <div class="ricon">${ic('folder',26)}</div>
+        <b>Nominations Report</b>
+        <span> </span>
+        <button class="btn btn-navy btn-sm" ${busy.nominations?'disabled':''} onclick="generateReport('nominations')">${busy.nominations ? `<span class="mini-spinner light"></span>Generating…` : 'Generate PDF'}</button>
+      </div>
+      <div class="report-card">
+        <div class="ricon">${ic('award',26)}</div>
+        <b>Winner Announcement Report</b>
+        <span> </span>
+        <button class="btn btn-navy btn-sm" ${busy.winner?'disabled':''} onclick="generateReport('winner')">${busy.winner ? `<span class="mini-spinner light"></span>Generating…` : 'Generate PDF'}</button>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:18px;"> </p>
+    </div>
+  </main>${Footer()}`;
+}
+
+function tileVisRow(group, key, label){
+  const tv = (state.settings && state.settings.tileVisibility) || {};
+  const mode = tileMode_(tv, group, key);
+  const savingKey = 'tv_' + group + '_' + key;
+  const saving = state.settingsSaving[savingKey];
+  return `<div class="settings-row"><div><b>${label}</b><span>Show normally, hide completely, or show greyed-out/read-only</span></div>
+    ${saving ? `<div class="mini-spinner"></div>` :
+    `<select class="tv-select" onchange="toggleTileVisibility('${group}','${key}', this.value)">
+       <option value="visible" ${mode==='visible'?'selected':''}>Show</option>
+       <option value="disabled" ${mode==='disabled'?'selected':''}>Show disabled (read-only)</option>
+       <option value="hidden" ${mode==='hidden'?'selected':''}>Hide</option>
+     </select>`}
+    </div>`;
+}
+
+function AdminSettingsView(){
+  const s = state.settings || {};
+  function row(key, label, sub, checked){
+    const saving = state.settingsSaving[key];
+    return `<div class="settings-row"><div><b>${label}</b><span>${sub}</span></div>
+      ${saving ? `<div class="mini-spinner"></div>` :
+      `<label class="switch"><input type="checkbox" ${checked?'checked':''} onchange="toggleSetting('${key}', this.checked)"><span class="slider"></span></label>`}
+      </div>`;
+  }
+  const savingAnnounce = state.settingsSaving['AnnouncementText'];
+  const savingReg = state.settingsSaving['schedule_reg'];
+  const savingVote = state.settingsSaving['schedule_vote'];
+  return `${Topbar(true)}<main>
+    <button class="backbtn" onclick="goto('dashboard')">${ic('arrowLeft',14)} Back to dashboard</button>
+    <div class="card"><h2 style="margin-top:0;font-family:var(--font-head);color:var(--navy);">Election Settings</h2>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">Toggle portal features on or off instantly — no code changes needed. Changes save immediately and confirm below.</p>
+    <div class="settings-list">
+      ${row('RegistrationEnabled','Registration','Allow employees to open the registration form', s.registrationManualEnabled != null ? s.registrationManualEnabled : s.registrationEnabled)}
+      ${row('NominationEnabled','Nomination Submission','Allow employees to submit a nomination', s.registrationManualEnabled != null ? s.registrationManualEnabled : s.nominationEnabled)}
+      ${row('VotingEnabled','Voting','Allow employees to cast votes', s.votingManualEnabled != null ? s.votingManualEnabled : s.votingEnabled)}
+      ${row('ResultsVisible','Live Results','Show ballot & results tile to employees', s.resultsVisible)}
+      ${row('AnnouncementsVisible','Announcements Banner','Show the announcement banner below', s.announcementsVisible)}
+      <div class="announce-edit">
+        <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px;">Announcement Text</label>
+        <textarea id="announceTextInput">${s.announcementText||''}</textarea>
+        <div style="margin-top:8px;"><button class="btn btn-navy btn-sm" ${savingAnnounce?'disabled':''} onclick="saveAnnouncementText()">${savingAnnounce ? `<span class="mini-spinner light"></span>Saving…` : 'Save Announcement'}</button></div>
+      </div>
+    </div>
+
+    <div class="settings-list" style="margin-top:20px;">
+      <div class="settings-group-title">Registration Schedule — Election Timer (optional)</div>
+      <div class="announce-edit">
+        <label class="dt-label">Opens At</label>
+        <input type="datetime-local" id="regOpenAt" class="dt-input" value="${s.registrationOpenAt||''}">
+        <label class="dt-label">Closes At</label>
+        <input type="datetime-local" id="regCloseAt" class="dt-input" value="${s.registrationCloseAt||''}">
+        <button class="btn btn-navy btn-sm" ${savingReg?'disabled':''} onclick="saveSchedule('reg')">${savingReg ? `<span class="mini-spinner light"></span>Saving…` : 'Save Registration Schedule'}</button>
+        ${s.registrationWindowMessage ? `<div class="schedule-hint">Current status: <span class="live-countdown" id="regTimerLabel" data-open="${s.registrationOpenAt||''}" data-close="${s.registrationCloseAt||''}">${s.registrationWindowMessage}</span></div>` : ''}
+        <div class="schedule-hint">Leave both blank for no automatic open/close time — the manual switches above fully control it. Saving applies immediately, everywhere, within a few seconds. On the Employee Dashboard, a not-yet-open Registration tile automatically shows a clock icon with a live countdown to this Opens At time.</div>
+      </div>
+    </div>
+
+    <div class="settings-list" style="margin-top:20px;">
+      <div class="settings-group-title">Voting Schedule — Election Timer (optional)</div>
+      <div class="announce-edit">
+        <label class="dt-label">Opens At</label>
+        <input type="datetime-local" id="voteOpenAt" class="dt-input" value="${s.votingOpenAt||''}">
+        <label class="dt-label">Closes At</label>
+        <input type="datetime-local" id="voteCloseAt" class="dt-input" value="${s.votingCloseAt||''}">
+        <button class="btn btn-navy btn-sm" ${savingVote?'disabled':''} onclick="saveSchedule('vote')">${savingVote ? `<span class="mini-spinner light"></span>Saving…` : 'Save Voting Schedule'}</button>
+        ${s.votingWindowMessage ? `<div class="schedule-hint">Current status: <span class="live-countdown" id="voteTimerLabel" data-open="${s.votingOpenAt||''}" data-close="${s.votingCloseAt||''}">${s.votingWindowMessage}</span></div>` : ''}
+        <div class="schedule-hint">Leave both blank for no automatic open/close time — the manual switch above fully controls it. Saving applies immediately, everywhere, within a few seconds. On the Employee Dashboard, a not-yet-open Vote Cast tile automatically shows a clock icon with a live countdown to this Opens At time.</div>
+      </div>
+    </div>
+
+    <div class="settings-list" style="margin-top:20px;">
+      <div class="settings-group-title">Employee Dashboard Tiles</div>
+      ${tileVisRow('Employee','register','Registration Tile')}
+      ${tileVisRow('Employee','vote','Vote Cast Tile')}
+      ${tileVisRow('Employee','status','My Status Tile')}
+      ${tileVisRow('Employee','results','Results Tile')}
+    </div>
+    <div class="settings-list" style="margin-top:20px;">
+      <div class="settings-group-title">Approver Dashboard Tiles</div>
+      ${tileVisRow('Approver','approverInbox','Approval Inbox Tile')}
+      ${tileVisRow('Approver','results','Results Tile')}
+    </div>
+    <div class="settings-list" style="margin-top:20px;">
+      <div class="settings-group-title">Viewer Dashboard Tiles</div>
+      ${tileVisRow('Viewer','results','Results Tile')}
+      ${tileVisRow('Viewer','manage','Manage Nominations Tile')}
+      ${tileVisRow('Viewer','settings','Election Settings Tile')}
+      ${tileVisRow('Viewer','reports','Reports Tile')}
+      <div style="padding:10px 20px;font-size:11px;color:var(--muted);">${ic('alert',13)} </div>
+    </div>
+    </div>
+  </main>${Footer()}`;
+}
+
+/* ---------- overlays ---------- */
+function ProcessingOverlay(){
+  if(!state.processing) return '';
+  const msgs={ submit:'Submitting your nomination…', vote:'Recording your vote…', approve:'Processing…', otp_request:'Processing…' };
+  const msg = msgs[state.processing] || 'Verifying your credentials…';
+  return `<div class="overlay"><div class="box"><div class="spinner"></div><p>${msg}</p></div></div>`;
+}
+function LockModal(){
+  if(!state.lockInfo) return '';
+  const remaining = state.lockInfo.until - Date.now();
+  return `<div class="modal-backdrop"><div class="modal">
+    <h3>${ic('lock',18)} Account Temporarily Locked</h3>
+    <p>Too many incorrect password attempts. For security, this account is locked for 60 minutes.</p>
+    <p style="text-align:center;font-size:22px;font-weight:800;color:var(--navy);" id="lockCountdown">${fmtCountdown(remaining)}</p>
+    <button class="btn btn-outline" onclick="state.lockInfo=null; render();">Close</button>
+  </div></div>`;
+}
+function RejectModalEl(){
+  const rm = state.rejectModal;
+  if(!rm) return '';
+  return `<div class="modal-backdrop"><div class="modal">
+    <h3>${ic('ban',18)} Reject Nomination</h3>
+    <p>Please provide a clear reason for rejecting nomination <b>${rm.nomId}</b>. This will be shown to the employee, and a reason is required before you can proceed.</p>
+    <textarea id="rejectReasonInput" placeholder="e.g. Incomplete documentation, does not meet eligibility criteria…" oninput="updateRejectReason(this.value)"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeRejectModal()">Cancel</button>
+      <button class="btn btn-danger" id="rejectConfirmBtn" disabled onclick="confirmReject()">Confirm Rejection</button>
+    </div>
+  </div></div>`;
+}
+/* H3 — VIP "Are you sure?" vote confirmation popup. */
+function VoteConfirmModalEl(){
+  const c = state.voteConfirm;
+  if(!c) return '';
+  return `<div class="modal-backdrop"><div class="modal" style="text-align:center;">
+    <div class="vote-confirm-photo">${c.photoUrl?`<img src="${c.photoUrl}">`:`<div class="initials">${c.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>`}</div>
+    <h3 style="color:var(--navy);justify-content:center;">Confirm Your Vote</h3>
+    <p>Are you sure you want to cast your vote for <b>${c.name}</b>${c.designation?` — ${c.designation}`:''}${c.project?`, ${c.project}`:''}?</p>
+    <p style="font-size:12px;color:var(--muted);">This is <b>final</b> — one vote per employee, and it cannot be changed afterward.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeVoteConfirm()">Cancel</button>
+      <button class="btn" onclick="confirmVoteYes()">Yes, Cast My Vote</button>
+    </div>
+  </div></div>`;
+}
+function ToastEl(){
+  if(!state.toast) return '';
+  return `<div class="toast ${state.toast.type==='info'?'info':''}${state.toast.type==='error'?' error':''}" id="toastEl">${state.toast.msg}</div>`;
+}
+
+/* ---------- root render ---------- */
+function render(){
+  let html='';
+  switch(state.view){
+    case 'boot': html=BootView(); break;
+    case 'login': html=LoginView(); break;
+    case 'email_gate': html=EmailGateView(); break;
+    case 'otp_verify': html=OtpVerifyView(); break;
+    case 'dashboardLoading': html=DashboardLoadingView(); break;
+    case 'dashboard': html=DashboardView(); break;
+    case 'register': html = state.registerLoading ? RegisterSkeletonView() : RegisterView(); break;
+    case 'status': html = state.statusLoading ? StatusSkeletonView() : StatusView(); break;
+    case 'vote': html = state.voteLoading ? VoteSkeletonView() : VoteView(); break;
+    case 'results': html = state.resultsLoading ? ResultsSkeletonView() : ResultsView(); break;
+    case 'approver': html = state.approverLoading ? ApproverSkeletonView() : ApproverInboxView(); break;
+    case 'adminManage': html=AdminManageView(); break;
+    case 'adminSettings': html=AdminSettingsView(); break;
+    case 'adminReports': html=AdminReportsView(); break;
+    default: html=DashboardView();
+  }
+  html += ProcessingOverlay() + LockModal() + RejectModalEl() + VoteConfirmModalEl() + ToastEl();
+  if(state.view==='register' && !state.registerLoading && !state.myNomination && !state.eligibilityAcknowledged) html += EligibilityOverlay();
+  document.getElementById('app').innerHTML = html;
+  if(state.view==='register' && !state.registerLoading && !state.myNomination) updateIntroCounter();
+  if(state.view==='otp_verify'){ updateOtpCountdownUI_(); }
+  if(state.view==='dashboard'){ startDashboardCountdown_(); } else { stopDashboardCountdown_(); }
+}
+
+/* Clicking anywhere outside the notification panel closes it. */
+document.addEventListener('click', function(e){
+  if(state.notifOpen && !e.target.closest('.notif-wrap')){
+    state.notifOpen = false; render();
+  }
+});
+</script>
+</body>
+</html>
